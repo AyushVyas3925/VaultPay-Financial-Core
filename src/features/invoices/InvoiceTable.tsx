@@ -137,7 +137,7 @@ export const InvoiceTable = ({
             {invoices.map((invoice) => (
               <tr 
                 key={invoice.id} 
-                className="group hover:bg-slate-100/60 transition-colors duration-150 cursor-pointer"
+                className="group hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out cursor-pointer relative hover:z-10"
               >
                 {/* Invoice Number */}
                 <td className="relative px-6 py-5 text-sm font-medium text-slate-900 whitespace-nowrap">
