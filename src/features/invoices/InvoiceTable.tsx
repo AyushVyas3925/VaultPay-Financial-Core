@@ -47,21 +47,21 @@ export const InvoiceTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/50">
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Invoice #
               </th>
               {showClientColumn && (
-                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                   Client
                 </th>
               )}
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Amount
               </th>
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Status
               </th>
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Due Date
               </th>
               <th className="relative px-6 py-4">
@@ -76,7 +76,7 @@ export const InvoiceTable = ({
                 className="group hover:bg-slate-50/40 transition-colors duration-150"
               >
                 {/* Invoice Number */}
-                <td className="relative px-6 py-4 text-sm font-semibold text-slate-900 whitespace-nowrap">
+                <td className="relative px-6 py-5 text-sm font-semibold text-slate-900 whitespace-nowrap">
                   {/* Hover Left Indicator line */}
                   <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-center" />
                   {invoice.number}
@@ -84,7 +84,7 @@ export const InvoiceTable = ({
                 
                 {/* Client Details */}
                 {showClientColumn && (
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="text-sm font-medium text-slate-900">
                       {invoice.clientName}
                     </div>
@@ -95,22 +95,22 @@ export const InvoiceTable = ({
                 )}
 
                 {/* Amount */}
-                <td className="px-6 py-4 text-sm font-bold text-slate-900 whitespace-nowrap">
+                <td className="px-6 py-5 text-sm font-bold text-slate-900 whitespace-nowrap">
                   {formatCurrency(invoice.total)}
                 </td>
 
                 {/* Status Badge */}
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-5 whitespace-nowrap">
                   <StatusBadge status={invoice.status} />
                 </td>
 
                 {/* Due Date */}
-                <td className="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">
+                <td className="px-6 py-5 text-sm text-slate-500 whitespace-nowrap">
                   {formatDate(invoice.dueDate)}
                 </td>
 
                 {/* Action Link */}
-                <td className="px-6 py-4 text-right whitespace-nowrap">
+                <td className="px-6 py-5 text-right whitespace-nowrap">
                   <Link
                     href={`${viewPathPrefix}/${invoice.id}`}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"

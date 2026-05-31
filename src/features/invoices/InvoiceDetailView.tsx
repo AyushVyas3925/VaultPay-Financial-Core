@@ -173,7 +173,13 @@ export const InvoiceDetailView = ({
             <span className="font-semibold text-slate-900">{formatCurrency(invoice.subtotal)}</span>
           </div>
           <div className="flex w-64 justify-between text-sm text-slate-500">
-            <span>Tax (8.875% NY):</span>
+            <span className="flex items-center gap-1.5 group/tooltip relative cursor-help">
+              <span>Tax (8.875% NY):</span>
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-100 text-[10px] text-slate-400 font-bold border border-slate-200">?</span>
+              <span className="pointer-events-none absolute bottom-full mb-2 right-0 w-52 rounded-lg bg-slate-900 p-2.5 text-[10px] leading-normal text-white opacity-0 transition-opacity duration-200 group-hover/tooltip:opacity-100 shadow-xl font-normal z-10">
+                New York State corporate tax rate of 8.875% applies to Nexus consulting service contracts.
+              </span>
+            </span>
             <span className="font-semibold text-slate-900">{formatCurrency(invoice.tax)}</span>
           </div>
           <div className="flex w-64 justify-between border-t border-slate-100 pt-3 text-base font-bold text-slate-900">

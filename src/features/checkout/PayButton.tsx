@@ -8,7 +8,7 @@ import {
   useStripe, 
   useElements 
 } from "@stripe/react-stripe-js";
-import { CheckCircle2, CreditCard, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle2, CreditCard, Loader2, AlertCircle, Lock } from "lucide-react";
 
 // Initialize Stripe Promise
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
@@ -220,6 +220,12 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
       <span className="block text-center text-[10px] text-slate-400 font-mono">
         Test Card Hint: 4242 4242 4242 4242 | Expiry: 12/28 | CVC: 123
       </span>
+
+      {/* Explicit Security Signatures (Trust UX Indicator) */}
+      <div className="flex items-center justify-center gap-1.5 pt-2 text-[10px] text-slate-400 font-semibold">
+        <Lock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+        <span>Encrypted using 256-bit SSL connection. Handled by Stripe (PCI-DSS compliant).</span>
+      </div>
     </form>
   );
 };
