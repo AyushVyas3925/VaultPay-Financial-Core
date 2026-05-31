@@ -17,13 +17,7 @@ export default function AdminInvoicesPage() {
     revalidateOnFocus: true
   });
 
-  if (isLoading && !invoices) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const isDataLoading = isLoading && !invoices;
 
   if (error) {
     return (
@@ -62,10 +56,10 @@ export default function AdminInvoicesPage() {
         </div>
       </div>
 
-      {/* Invoice Table Grid */}
       <InvoiceTable 
         invoices={sortedInvoices} 
         viewPathPrefix="/admin/invoices" 
+        isLoading={isDataLoading}
       />
     </div>
   );

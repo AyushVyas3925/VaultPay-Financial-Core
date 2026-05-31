@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { ClientSummary } from "@/types/invoice";
+import { ClientSummary, Invoice } from "@/types/invoice";
 import { Plus, Trash2, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -22,6 +22,8 @@ export default function CreateInvoicePage() {
 
   // Load clients to populate dropdown
   const { data: clients, error } = useSWR<ClientSummary[]>("/api/clients", fetcher);
+  // Load invoices to calculate past client averages and terms
+  const { data: invoices } = useSWR<Invoice[]>("/api/invoices", fetcher);
 
   // Form State
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -31,6 +33,52 @@ export default function CreateInvoicePage() {
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  
+  // Suggestion parameters
+  const [suggestion, setSuggestion] = useState<{ avgRate: number; avgDays: number } | null>(null);
+
+  // Dynamically calculate average billing amount and terms on client change
+  useEffect(() => {
+    if (!selectedClientId || !invoices || invoices.length === 0) {
+      setSuggestion(null);
+      return;
+    }
+
+    const clientInvoices = invoices.filter(inv => inv.clientId === selectedClientId);
+    if (clientInvoices.length === 0) {
+      setSuggestion(null);
+      return;
+    }
+
+    // Calculate average invoice total
+    const totalBilled = clientInvoices.reduce((sum, inv) => sum + inv.subtotal, 0);
+    const avgRate = Math.round(totalBilled / clientInvoices.length);
+
+    // Calculate average terms (due date minus issued date)
+    const totalDays = clientInvoices.reduce((sum, inv) => {
+      const issued = new Date(inv.issuedDate);
+      const due = new Date(inv.dueDate);
+      const diff = Math.ceil((due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24));
+      return sum + diff;
+    }, 0);
+    const avgDays = Math.round(totalDays / clientInvoices.length) || 30; // Fallback to 30
+
+    setSuggestion({ avgRate, avgDays });
+
+    // Auto-populate Due Date to today + avgDays
+    const today = new Date();
+    today.setDate(today.getDate() + avgDays);
+    const dateStr = today.toISOString().split("T")[0];
+    setDueDate(dateStr);
+
+    // Auto-populate first line item rate with average if it is currently 0 or empty
+    setLineItems((prev) => {
+      if (prev.length === 1 && prev[0].description === "" && prev[0].rate === 0) {
+        return [{ description: "Strategic consulting services", quantity: 1, rate: avgRate }];
+      }
+      return prev;
+    });
+  }, [selectedClientId, invoices]);
 
   // Auto-calculated totals in UI
   const calculateTotals = () => {
@@ -62,6 +110,21 @@ export default function CreateInvoicePage() {
       return item;
     });
     setLineItems(updated);
+  };
+
+  // Frictionless line item rows (Tab key additions)
+  const handleRateKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Tab" && !e.shiftKey && index === lineItems.length - 1) {
+      e.preventDefault();
+      addLineItem();
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input[placeholder="Consulting Services Description..."]');
+        const nextInput = inputs[inputs.length - 1] as HTMLInputElement;
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }, 50);
+    }
   };
 
   // Submit Invoice Handler
@@ -193,6 +256,13 @@ export default function CreateInvoicePage() {
                 </option>
               ))}
             </select>
+
+            {/* Smart Auto-fill Suggestions Indicator */}
+            {suggestion && (
+              <div className="mt-2 text-[10px] font-semibold text-blue-600 bg-blue-50/50 border border-blue-100/60 rounded-lg px-2.5 py-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                ✨ Suggested billing defaults loaded: Avg Subtotal <strong>{formatCurrency(suggestion.avgRate)}</strong>, Payment offset <strong>{suggestion.avgDays} Days</strong>.
+              </div>
+            )}
           </div>
 
           {/* Due Date */}
@@ -219,7 +289,7 @@ export default function CreateInvoicePage() {
             <button
               type="button"
               onClick={addLineItem}
-              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline focus:outline-none"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline focus:outline-none cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Add Item Row
@@ -227,76 +297,91 @@ export default function CreateInvoicePage() {
           </div>
 
           <div className="space-y-4">
-            {lineItems.map((item, index) => (
-              <div 
-                key={index} 
-                className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/50"
-              >
-                {/* Description */}
-                <div className="flex-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Consulting Services Description..."
-                    value={item.description}
-                    onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                    className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                {/* Quantity */}
-                <div className="w-full sm:w-20">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    placeholder="1"
-                    value={item.quantity}
-                    onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
-                    className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                {/* Rate */}
-                <div className="w-full sm:w-32">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
-                    Rate ($)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0.01"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={item.rate || ""}
-                    onChange={(e) => handleItemChange(index, "rate", Number(e.target.value))}
-                    className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                </div>
-
-                {/* Calculated Total for Row */}
-                <div className="w-full sm:w-28 text-right font-semibold text-slate-900 text-sm py-2">
-                  <span className="inline-block sm:hidden text-xs text-slate-400 font-normal mr-2">Row Total:</span>
-                  {formatCurrency(item.quantity * item.rate)}
-                </div>
-
-                {/* Delete Button */}
-                <button
-                  type="button"
-                  onClick={() => removeLineItem(index)}
-                  disabled={lineItems.length === 1}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-slate-100 hover:border-red-200 disabled:opacity-50 transition-colors focus:outline-none shrink-0"
+            {lineItems.map((item, index) => {
+              const isGeneric = item.description.trim().toLowerCase() === "consulting";
+              return (
+                <div 
+                  key={index} 
+                  className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/50"
                 >
-                  <Trash2 className="h-4.5 w-4.5" />
-                </button>
-              </div>
-            ))}
+                  {/* Description */}
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Consulting Services Description..."
+                      value={item.description}
+                      onChange={(e) => handleItemChange(index, "description", e.target.value)}
+                      className={`block w-full rounded-lg border px-3 py-2 text-sm bg-white focus:outline-none transition-all duration-200 ${
+                        isGeneric 
+                          ? "border-amber-300 bg-amber-50 text-amber-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500" 
+                          : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      }`}
+                    />
+                    
+                    {/* Visual Policy Warning Alert */}
+                    {isGeneric && (
+                      <p className="mt-1.5 text-[10px] font-semibold text-amber-700 bg-amber-100/50 border border-amber-200/40 rounded-md px-2 py-1 animate-in fade-in duration-200">
+                        ⚠️ Nexus standard policies require description to specify hours/deliverables.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Quantity */}
+                  <div className="w-full sm:w-20">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      placeholder="1"
+                      value={item.quantity}
+                      onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
+                      className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  {/* Rate */}
+                  <div className="w-full sm:w-32">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
+                      Rate ($)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={item.rate || ""}
+                      onChange={(e) => handleItemChange(index, "rate", Number(e.target.value))}
+                      onKeyDown={(e) => handleRateKeyDown(e, index)}
+                      className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  {/* Calculated Total for Row */}
+                  <div className="w-full sm:w-28 text-right font-semibold text-slate-900 text-sm py-2">
+                    <span className="inline-block sm:hidden text-xs text-slate-400 font-normal mr-2">Row Total:</span>
+                    {formatCurrency(item.quantity * item.rate)}
+                  </div>
+
+                  {/* Delete Button */}
+                  <button
+                    type="button"
+                    onClick={() => removeLineItem(index)}
+                    disabled={lineItems.length === 1}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-slate-100 hover:border-red-200 disabled:opacity-50 transition-colors focus:outline-none shrink-0 cursor-pointer"
+                  >
+                    <Trash2 className="h-4.5 w-4.5" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -333,7 +418,7 @@ export default function CreateInvoicePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2.5 shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2.5 shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none cursor-pointer"
           >
             {submitting ? (
               <>

@@ -22,6 +22,31 @@ interface InnerPayFormProps {
   onSuccess: () => void;
 }
 
+const getCardLogo = (brand: string) => {
+  switch (brand.toLowerCase()) {
+    case "visa":
+      return (
+        <span className="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-200 rounded px-1.5 py-0.5 tracking-wider select-none animate-in fade-in duration-300">
+          VISA
+        </span>
+      );
+    case "mastercard":
+      return (
+        <span className="text-[9px] font-black text-red-500 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 tracking-wider select-none animate-in fade-in duration-300">
+          MC
+        </span>
+      );
+    case "amex":
+      return (
+        <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 tracking-wider select-none animate-in fade-in duration-300">
+          AMEX
+        </span>
+      );
+    default:
+      return <CreditCard className="h-4.5 w-4.5 text-slate-400 animate-in fade-in duration-300" />;
+  }
+};
+
 const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -29,7 +54,13 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [cardBrand, setCardBrand] = useState<string>("unknown");
   
+  // Custom mock inputs to prevent stripe-elements-crash
+  const [mockCardNumber, setMockCardNumber] = useState("");
+  const [mockExpiry, setMockExpiry] = useState("");
+  const [mockCvc, setMockCvc] = useState("");
+
   // Double-submit prevention guard
   const processingRef = useRef(false);
 
@@ -40,6 +71,8 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     }).format(val);
   };
 
+  const isMockMode = !stripePublishableKey || stripePublishableKey === "pk_test_placeholder";
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -47,7 +80,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     if (processingRef.current) return;
     
     // Acquire elements check
-    if (!stripePublishableKey || stripePublishableKey === "pk_test_placeholder") {
+    if (isMockMode) {
       // DEV MODE / MOCK BYPASS: Trigger simulated payment when credentials are missing
       processingRef.current = true;
       setLoading(true);
@@ -164,31 +197,102 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
 
   return (
     <form onSubmit={handlePayment} className="space-y-4">
-      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-xs">
-        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-xs space-y-3">
+        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
           Credit or Debit Card
         </label>
         
-        {/* Inline CardElement styled to match white theme */}
-        <div className="py-2.5 px-1 bg-white">
-          <CardElement
-            options={{
-              style: {
-                base: {
-                  fontSize: "14px",
-                  color: "#0f172a", // Slate 900
-                  fontFamily: "Inter, sans-serif",
-                  "::placeholder": {
-                    color: "#94a3b8", // Slate 400
+        {isMockMode ? (
+          <div className="space-y-3">
+            {/* Mock Card Input Field with autodetect logo inside */}
+            <div className="relative">
+              <input
+                type="text"
+                required
+                placeholder="Card number (e.g. 4242 4242 4242 4242)"
+                value={mockCardNumber}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\s+/g, "");
+                  setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
+                  
+                  // Autodetect card brand
+                  if (raw.startsWith("4")) {
+                    setCardBrand("visa");
+                  } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
+                    setCardBrand("mastercard");
+                  } else if (/^(3[47])/.test(raw)) {
+                    setCardBrand("amex");
+                  } else if (raw === "") {
+                    setCardBrand("unknown");
+                  } else {
+                    setCardBrand("other");
+                  }
+                }}
+                maxLength={19}
+                className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+              />
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                {getCardLogo(cardBrand)}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                required
+                placeholder="MM / YY"
+                value={mockExpiry}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\s+/g, "");
+                  setMockExpiry(val);
+                }}
+                maxLength={5}
+                className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+              />
+              <input
+                type="password"
+                required
+                placeholder="CVC"
+                value={mockCvc}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setMockCvc(val);
+                }}
+                maxLength={4}
+                className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="py-2.5 px-1 bg-white flex items-center justify-between border border-slate-100 rounded-lg">
+            {/* Inline CardElement styled to match white theme */}
+            <div className="flex-1">
+              <CardElement
+                onChange={(e) => {
+                  setCardBrand(e.brand || "unknown");
+                }}
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "14px",
+                      color: "#0f172a", // Slate 900
+                      fontFamily: "Inter, sans-serif",
+                      "::placeholder": {
+                        color: "#94a3b8", // Slate 400
+                      },
+                    },
+                    invalid: {
+                      color: "#ef4444", // Red 500
+                    },
                   },
-                },
-                invalid: {
-                  color: "#ef4444", // Red 500
-                },
-              },
-            }}
-          />
-        </div>
+                }}
+              />
+            </div>
+            <div className="ml-3 shrink-0">
+              {getCardLogo(cardBrand)}
+            </div>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -202,7 +306,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-3 text-sm font-semibold text-white shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none"
+        className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-3 text-sm font-semibold text-white shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none cursor-pointer"
       >
         {loading ? (
           <>

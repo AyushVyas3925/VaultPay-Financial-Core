@@ -16,13 +16,7 @@ export default function ClientPaymentsPage() {
     revalidateOnFocus: true
   });
 
-  if (isLoading && !invoices) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const isDataLoading = isLoading && !invoices;
 
   if (error) {
     return (
@@ -55,7 +49,7 @@ export default function ClientPaymentsPage() {
       </div>
 
       {/* Invoice Table Grid */}
-      {sortedPaidInvoices.length === 0 ? (
+      {!isDataLoading && sortedPaidInvoices.length === 0 ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
           <ShieldCheck className="mx-auto h-12 w-12 text-slate-300" />
           <h3 className="mt-4 text-sm font-semibold text-slate-900">No settled transactions</h3>
@@ -66,6 +60,7 @@ export default function ClientPaymentsPage() {
           invoices={sortedPaidInvoices} 
           viewPathPrefix="/client/invoices"
           showClientColumn={false}
+          isLoading={isDataLoading}
         />
       )}
     </div>

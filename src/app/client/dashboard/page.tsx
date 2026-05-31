@@ -58,13 +58,7 @@ export default function ClientDashboardPage() {
 
   const { outstanding, paidTotal, totalCount } = calculateMetrics();
 
-  if (isLoading && !invoices) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const isDataLoading = isLoading && !invoices;
 
   if (error) {
     return (
@@ -96,19 +90,19 @@ export default function ClientDashboardPage() {
       <div className="grid gap-6 sm:grid-cols-3">
         <StatCard
           label="Outstanding Balance"
-          value={formatCurrency(outstanding)}
+          value={isDataLoading ? "..." : formatCurrency(outstanding)}
           icon={Clock}
           subtext="Unpaid invoice bills"
         />
         <StatCard
           label="Paid Total"
-          value={formatCurrency(paidTotal)}
+          value={isDataLoading ? "..." : formatCurrency(paidTotal)}
           icon={DollarSign}
           subtext="Settled contract value"
         />
         <StatCard
           label="Total Invoices"
-          value={totalCount}
+          value={isDataLoading ? "..." : totalCount}
           icon={CheckCircle2}
           subtext="Cumulative invoices"
         />
@@ -131,7 +125,8 @@ export default function ClientDashboardPage() {
         <InvoiceTable 
           invoices={unpaidInvoices} 
           viewPathPrefix="/client/invoices"
-          showClientColumn={false} // Don't show Client column since client is viewing their own dashboard
+          showClientColumn={false}
+          isLoading={isDataLoading}
         />
       </div>
     </div>

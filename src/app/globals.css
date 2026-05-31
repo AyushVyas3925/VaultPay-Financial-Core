@@ -12,6 +12,12 @@
   /* Custom SVG Draw Check Keyframes */
   --animate-draw-check: draw-check 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-draw-circle: draw-circle 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  /* Senior UX Blobs and Shimmer Keyframes */
+  --animate-blob-spin: blob-spin 25s infinite linear;
+  --animate-blob-float-1: blob-float-1 18s ease-in-out infinite alternate;
+  --animate-blob-float-2: blob-float-2 22s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 1.5s infinite linear;
 }
 
 @keyframes draw-check {
@@ -32,6 +38,48 @@
   }
 }
 
+@keyframes blob-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blob-float-1 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(40px, -60px) scale(1.1);
+  }
+  100% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes blob-float-2 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-50px, 40px) scale(0.9);
+  }
+  100% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -44,3 +92,15 @@ body {
   background-color: rgba(37, 99, 235, 0.15); /* Soft blue highlights */
   color: #2563eb;
 }
+
+/* Shimmer style helper */
+.shimmer-bg {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+}
+
+.animate-shimmer {
+  animation: var(--animate-shimmer);
+}
+
+

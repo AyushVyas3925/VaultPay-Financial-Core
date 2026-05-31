@@ -96,13 +96,7 @@ export default function AdminDashboardPage() {
     aging60plus 
   } = calculateMetrics();
 
-  if (isLoading && !invoices) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const isDataLoading = isLoading && !invoices;
 
   if (error) {
     return (
@@ -147,32 +141,32 @@ export default function AdminDashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Revenue"
-          value={formatCurrency(totalRevenue)}
+          value={isDataLoading ? "..." : formatCurrency(totalRevenue)}
           icon={DollarSign}
           subtext="Processed payments"
         />
         <StatCard
           label="Outstanding Balance"
-          value={formatCurrency(outstanding)}
+          value={isDataLoading ? "..." : formatCurrency(outstanding)}
           icon={Clock}
           subtext="Pending and overdue collections"
         />
         <StatCard
           label="Paid Invoices"
-          value={paidCount}
+          value={isDataLoading ? "..." : paidCount}
           icon={CheckCircle2}
           subtext="Settled invoice receipts"
         />
         <StatCard
           label="Active Clients"
-          value={activeClients}
+          value={isDataLoading ? "..." : activeClients}
           icon={Users}
           subtext="Corporate client contracts"
         />
       </div>
 
       {/* Overdue Accounts Receivables Aging Analysis */}
-      {outstanding > 0 && (
+      {!isDataLoading && outstanding > 0 && (
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
             <Clock className="h-4 w-4 text-slate-400" />
@@ -214,6 +208,7 @@ export default function AdminDashboardPage() {
         <InvoiceTable 
           invoices={recentInvoices} 
           viewPathPrefix="/admin/invoices" 
+          isLoading={isDataLoading}
         />
       </div>
     </div>

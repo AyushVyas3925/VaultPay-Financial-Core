@@ -1,19 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
 export const Shell = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Hydrate collapsed state from local storage on mount (avoids hydration mismatch)
+  useEffect(() => {
+    const val = localStorage.getItem("vp_sidebar_collapsed");
+    if (val === "true") {
+      setSidebarCollapsed(true);
+    }
+  }, []);
+
+  const handleToggleCollapse = () => {
+    const newVal = !sidebarCollapsed;
+    setSidebarCollapsed(newVal);
+    localStorage.setItem("vp_sidebar_collapsed", String(newVal));
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar Navigation */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen} 
+        isCollapsed={sidebarCollapsed} 
+        onToggleCollapse={handleToggleCollapse} 
+      />
 
-      {/* Main Content Layout Wrapper */}
-      <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
+      {/* Main Content Layout Wrapper - transitions layout width dynamically */}
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         {/* Top Header */}
         <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 

@@ -8,12 +8,14 @@ interface InvoiceTableProps {
   invoices: Invoice[];
   viewPathPrefix: "/admin/invoices" | "/client/invoices";
   showClientColumn?: boolean;
+  isLoading?: boolean;
 }
 
 export const InvoiceTable = ({ 
   invoices, 
   viewPathPrefix, 
-  showClientColumn = true 
+  showClientColumn = true,
+  isLoading = false
 }: InvoiceTableProps) => {
 
   const formatCurrency = (amount: number) => {
@@ -31,6 +33,68 @@ export const InvoiceTable = ({
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/50">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Invoice #
+                </th>
+                {showClientColumn && (
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Client
+                  </th>
+                )}
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Amount
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Due Date
+                </th>
+                <th className="relative px-6 py-4">
+                  <span className="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {[1, 2, 3, 4, 5].map((idx) => (
+                <tr key={idx} className="hover:bg-slate-50/10">
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="h-4 w-24 bg-slate-100 rounded shimmer-bg animate-shimmer" />
+                  </td>
+                  {showClientColumn && (
+                    <td className="px-6 py-5 whitespace-nowrap">
+                      <div className="h-4 w-32 bg-slate-100 rounded mb-1.5 shimmer-bg animate-shimmer" />
+                      <div className="h-3.5 w-44 bg-slate-100 rounded shimmer-bg animate-shimmer" />
+                    </td>
+                  )}
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="h-4 w-16 bg-slate-100 rounded shimmer-bg animate-shimmer" />
+                  </td>
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="h-6 w-16 bg-slate-100 rounded-full shimmer-bg animate-shimmer" />
+                  </td>
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="h-4 w-20 bg-slate-100 rounded shimmer-bg animate-shimmer" />
+                  </td>
+                  <td className="px-6 py-5 text-right whitespace-nowrap">
+                    <div className="h-4 w-16 bg-slate-100 rounded ml-auto shimmer-bg animate-shimmer" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   if (invoices.length === 0) {
     return (
       <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
@@ -47,21 +111,21 @@ export const InvoiceTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/50">
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Invoice #
               </th>
               {showClientColumn && (
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Client
                 </th>
               )}
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Amount
               </th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Status
               </th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Due Date
               </th>
               <th className="relative px-6 py-4">
@@ -76,7 +140,7 @@ export const InvoiceTable = ({
                 className="group hover:bg-slate-50/40 transition-colors duration-150"
               >
                 {/* Invoice Number */}
-                <td className="relative px-6 py-5 text-sm font-semibold text-slate-900 whitespace-nowrap">
+                <td className="relative px-6 py-5 text-sm font-medium text-slate-900 whitespace-nowrap">
                   {/* Hover Left Indicator line */}
                   <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-blue-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] origin-center" />
                   {invoice.number}
@@ -85,7 +149,7 @@ export const InvoiceTable = ({
                 {/* Client Details */}
                 {showClientColumn && (
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="text-sm font-medium text-slate-900">
+                    <div className="text-sm font-medium text-slate-950">
                       {invoice.clientName}
                     </div>
                     <div className="text-xs text-slate-500">
