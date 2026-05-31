@@ -101,7 +101,7 @@ export const Header = ({ onMenuToggle }: HeaderProps) => {
       <SearchModal 
         isOpen={searchOpen} 
         onClose={() => setSearchOpen(false)} 
-        viewerRole={role as any || "client"}
+        viewerRole={role || "client"}
       />
     </>
   );

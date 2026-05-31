@@ -31,7 +31,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
 
-  const user = session?.user ? (session.user as any) : null;
+  const user = session?.user || null;
   const role: UserRole | null = user?.role || null;
   const isAdmin = role === "admin";
   const isClient = role === "client";

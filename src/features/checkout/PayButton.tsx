@@ -8,7 +8,7 @@ import {
   useStripe, 
   useElements 
 } from "@stripe/react-stripe-js";
-import { CheckCircle2, CreditCard, Loader2, AlertCircle, Lock } from "lucide-react";
+import { CreditCard, Loader2, AlertCircle, Lock } from "lucide-react";
 
 // Initialize Stripe Promise
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
@@ -115,8 +115,8 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
         setTimeout(() => {
           onSuccess();
         }, 1500);
-      } catch (err: any) {
-        setError(err.message || "Dev payment mock failure");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Dev payment mock failure");
       } finally {
         setLoading(false);
         processingRef.current = false;
@@ -172,8 +172,8 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
       } else {
         throw new Error("Payment transaction was not completed successfully.");
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected transaction error occurred.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected transaction error occurred.");
       processingRef.current = false;
       setLoading(false);
     }

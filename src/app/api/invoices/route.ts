@@ -9,12 +9,16 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const session = await requireAuth();
-    const user = session.user as any;
+    const user = session.user;
+    if (!user || !user.role) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     
     const invoices = store.getInvoices(user.role, user.clientId);
     return NextResponse.json(invoices);
-  } catch (error: any) {
-    if (error.message === "Unauthenticated") {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    if (err.message === "Unauthenticated") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -45,11 +49,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(newInvoice, { status: 201 });
-  } catch (error: any) {
-    if (error.message === "Unauthenticated") {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    if (err.message === "Unauthenticated") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
-    if (error.message === "Forbidden") {
+    if (err.message === "Forbidden") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -4,7 +4,7 @@ import React from "react";
 import useSWR from "swr";
 import { Invoice } from "@/types/invoice";
 import { InvoiceTable } from "@/features/invoices/InvoiceTable";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

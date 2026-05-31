@@ -30,9 +30,11 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
   // Auto focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setQuery("");
-      setSelectedIndex(0);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        setQuery("");
+        setSelectedIndex(0);
+      }, 50);
     }
   }, [isOpen]);
 
@@ -61,11 +63,6 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
         return matchNum || matchClient || matchItems;
       }).slice(0, 8) // Limit to top 8 results for speed and visual spacing
     : [];
-
-  // Reset selected index when query changes
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [query]);
 
   // Keyboard navigation inside modal
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -116,7 +113,10 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
             type="text"
             placeholder="Search invoice number, client name, or deliverables..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelectedIndex(0);
+            }}
             className="w-full bg-transparent border-0 pl-12 pr-16 py-4.5 text-white placeholder-slate-500 focus:outline-none focus:ring-0 text-sm"
           />
           <div className="absolute right-4 flex items-center gap-1.5 pointer-events-none">

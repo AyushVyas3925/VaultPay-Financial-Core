@@ -5,7 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Invoice } from "@/types/invoice";
 import { InvoiceTable } from "@/features/invoices/InvoiceTable";
-import { Plus, Loader2, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

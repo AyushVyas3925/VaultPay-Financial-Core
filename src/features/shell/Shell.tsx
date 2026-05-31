@@ -8,11 +8,13 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Hydrate collapsed state from local storage on mount (avoids hydration mismatch)
+  // Defer collapsed state hydration to avoid synchronous cascading renders
   useEffect(() => {
     const val = localStorage.getItem("vp_sidebar_collapsed");
     if (val === "true") {
-      setSidebarCollapsed(true);
+      setTimeout(() => {
+        setSidebarCollapsed(true);
+      }, 0);
     }
   }, []);
 

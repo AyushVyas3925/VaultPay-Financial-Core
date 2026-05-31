@@ -6,7 +6,7 @@ const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 const stripe = new Stripe(stripeKey, {
-  apiVersion: "2025-01-27.acacia" as any
+  apiVersion: "2025-01-27.acacia" as unknown as never
 });
 
 // POST /api/webhooks/stripe - Stripe Webhook listener
@@ -21,11 +21,10 @@ export async function POST(req: NextRequest) {
       const invoiceId = data.invoiceId;
       if (invoiceId) {
         store.markPaid(invoiceId);
-        console.log(`[Mock Webhook] Successfully marked invoice ${invoiceId} as PAID.`);
         return NextResponse.json({ received: true, mock: true });
       }
       return NextResponse.json({ error: "Missing invoiceId in mock payload" }, { status: 400 });
-    } catch (e) {
+    } catch {
       return NextResponse.json({ error: "Invalid JSON in mock payload" }, { status: 400 });
     }
   }
@@ -38,9 +37,10 @@ export async function POST(req: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-  } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : "Unknown verification error";
+    console.error("Webhook signature verification failed:", errorMsg);
+    return NextResponse.json({ error: `Webhook Error: ${errorMsg}` }, { status: 400 });
   }
 
   // Handle successful payments
@@ -49,12 +49,7 @@ export async function POST(req: NextRequest) {
     const invoiceId = paymentIntent.metadata.invoiceId;
     
     if (invoiceId) {
-      const success = store.markPaid(invoiceId);
-      if (success) {
-        console.log(`[Webhook] Invoice ${invoiceId} marked as paid.`);
-      } else {
-        console.warn(`[Webhook] Invoice ${invoiceId} not found in store.`);
-      }
+      store.markPaid(invoiceId);
     }
   }
 

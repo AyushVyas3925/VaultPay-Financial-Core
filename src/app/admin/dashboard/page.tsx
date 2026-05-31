@@ -11,8 +11,7 @@ import {
   Clock, 
   CheckCircle2, 
   Users, 
-  Plus, 
-  Loader2 
+  Plus
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -167,25 +166,25 @@ export default function AdminDashboardPage() {
 
       {/* Overdue Accounts Receivables Aging Analysis */}
       {!isDataLoading && outstanding > 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <Clock className="h-4 w-4 text-slate-400" />
             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               Overdue Accounts Receivables Aging Analysis
             </h4>
           </div>
-          <div className="grid gap-4 grid-cols-3 text-center">
-            <div className="p-3 bg-slate-50/50 rounded-lg border border-slate-100">
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">1 - 30 Days</span>
-              <span className="text-base font-bold text-amber-600">{formatCurrency(aging1to30)}</span>
+          <div className="grid gap-6 grid-cols-3 text-center">
+            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">1 - 30 Days</span>
+              <span className="text-lg lg:text-xl font-bold text-blue-600">{formatCurrency(aging1to30)}</span>
             </div>
-            <div className="p-3 bg-slate-50/50 rounded-lg border border-slate-100">
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">31 - 60 Days</span>
-              <span className="text-base font-bold text-orange-500">{formatCurrency(aging31to60)}</span>
+            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">31 - 60 Days</span>
+              <span className="text-lg lg:text-xl font-bold text-orange-500">{formatCurrency(aging31to60)}</span>
             </div>
-            <div className="p-3 bg-slate-50/50 rounded-lg border border-slate-100">
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">60+ Days</span>
-              <span className="text-base font-bold text-red-600">{formatCurrency(aging60plus)}</span>
+            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">60+ Days</span>
+              <span className="text-lg lg:text-xl font-bold text-red-600">{formatCurrency(aging60plus)}</span>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 const stripe = new Stripe(stripeKey, {
-  apiVersion: "2025-01-27.acacia" as any
+  apiVersion: "2025-01-27.acacia" as unknown as never
 });
 
 // POST /api/checkout - Create a Stripe PaymentIntent for an invoice
@@ -16,7 +16,10 @@ export async function POST(req: NextRequest) {
   try {
     // Validate Layer 2: Must be Client to pay invoices
     const session = await requireClient();
-    const user = session.user as any;
+    const user = session.user;
+    if (!user || !user.role) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const { invoiceId } = await req.json();
     if (!invoiceId) {
@@ -61,14 +64,15 @@ export async function POST(req: NextRequest) {
       clientSecret: paymentIntent.client_secret,
       isMock: false
     });
-  } catch (error: any) {
-    console.error("Stripe Checkout Error:", error);
-    if (error.message === "Unauthenticated") {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    console.error("Stripe Checkout Error:", err);
+    if (err.message === "Unauthenticated") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
-    if (error.message === "Forbidden") {
+    if (err.message === "Forbidden") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
   }
 }

@@ -13,7 +13,10 @@ export async function GET(
 ) {
   try {
     const session = await requireAuth();
-    const user = session.user as any;
+    const user = session.user;
+    if (!user || !user.role) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const { id } = await context.params;
 
@@ -34,7 +37,6 @@ export async function GET(
     // Color Palette
     const primaryColor = "#1e293b"; // Slate 800
     const secondaryColor = "#475569"; // Slate 600
-    const accentColor = "#2563eb"; // Blue 600
     const lightBg = "#f8fafc"; // Slate 50
     const gridBorder = "#e2e8f0"; // Slate 200
 
@@ -143,9 +145,10 @@ export async function GET(
         "Content-Disposition": `attachment; filename="${invoice.number}.pdf"`
       }
     });
-  } catch (error: any) {
-    console.error("PDF generation failed:", error);
-    if (error.message === "Unauthenticated") {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    console.error("PDF generation failed:", err);
+    if (err.message === "Unauthenticated") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

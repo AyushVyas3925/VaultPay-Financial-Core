@@ -12,7 +12,10 @@ export async function GET(
 ) {
   try {
     const session = await requireAuth();
-    const user = session.user as any;
+    const user = session.user;
+    if (!user || !user.role) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     
     const { id } = await context.params;
     
@@ -25,8 +28,9 @@ export async function GET(
     }
 
     return NextResponse.json(invoice);
-  } catch (error: any) {
-    if (error.message === "Unauthenticated") {
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown error");
+    if (err.message === "Unauthenticated") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

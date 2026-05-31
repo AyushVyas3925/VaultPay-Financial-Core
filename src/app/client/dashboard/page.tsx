@@ -9,9 +9,7 @@ import { InvoiceTable } from "@/features/invoices/InvoiceTable";
 import { 
   DollarSign, 
   Clock, 
-  CheckCircle2, 
-  Loader2, 
-  ArrowRight 
+  CheckCircle2
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";

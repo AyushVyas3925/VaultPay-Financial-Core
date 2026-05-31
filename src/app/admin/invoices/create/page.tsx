@@ -21,7 +21,7 @@ export default function CreateInvoicePage() {
   const router = useRouter();
 
   // Load clients to populate dropdown
-  const { data: clients, error } = useSWR<ClientSummary[]>("/api/clients", fetcher);
+  const { data: clients } = useSWR<ClientSummary[]>("/api/clients", fetcher);
   // Load invoices to calculate past client averages and terms
   const { data: invoices } = useSWR<Invoice[]>("/api/invoices", fetcher);
 
@@ -40,13 +40,13 @@ export default function CreateInvoicePage() {
   // Dynamically calculate average billing amount and terms on client change
   useEffect(() => {
     if (!selectedClientId || !invoices || invoices.length === 0) {
-      setSuggestion(null);
+      setTimeout(() => setSuggestion(null), 0);
       return;
     }
 
     const clientInvoices = invoices.filter(inv => inv.clientId === selectedClientId);
     if (clientInvoices.length === 0) {
-      setSuggestion(null);
+      setTimeout(() => setSuggestion(null), 0);
       return;
     }
 
@@ -61,23 +61,22 @@ export default function CreateInvoicePage() {
       const diff = Math.ceil((due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24));
       return sum + diff;
     }, 0);
-    const avgDays = Math.round(totalDays / clientInvoices.length) || 30; // Fallback to 30
+    const avgDays = Math.round(totalDays / clientInvoices.length) || 30;
 
-    setSuggestion({ avgRate, avgDays });
-
-    // Auto-populate Due Date to today + avgDays
     const today = new Date();
     today.setDate(today.getDate() + avgDays);
     const dateStr = today.toISOString().split("T")[0];
-    setDueDate(dateStr);
 
-    // Auto-populate first line item rate with average if it is currently 0 or empty
-    setLineItems((prev) => {
-      if (prev.length === 1 && prev[0].description === "" && prev[0].rate === 0) {
-        return [{ description: "Strategic consulting services", quantity: 1, rate: avgRate }];
-      }
-      return prev;
-    });
+    setTimeout(() => {
+      setSuggestion({ avgRate, avgDays });
+      setDueDate(dateStr);
+      setLineItems((prev) => {
+        if (prev.length === 1 && prev[0].description === "" && prev[0].rate === 0) {
+          return [{ description: "Strategic consulting services", quantity: 1, rate: avgRate }];
+        }
+        return prev;
+      });
+    }, 0);
   }, [selectedClientId, invoices]);
 
   // Auto-calculated totals in UI
@@ -102,10 +101,18 @@ export default function CreateInvoicePage() {
   };
 
   // Handle line item change
-  const handleItemChange = (index: number, field: keyof FormLineItem, value: any) => {
+  const handleItemChange = (index: number, field: keyof FormLineItem, value: string | number) => {
     const updated = lineItems.map((item, idx) => {
       if (idx === index) {
-        return { ...item, [field]: value };
+        const updatedItem = { ...item };
+        if (field === "description") {
+          updatedItem.description = value as string;
+        } else if (field === "quantity") {
+          updatedItem.quantity = Number(value);
+        } else if (field === "rate") {
+          updatedItem.rate = Number(value);
+        }
+        return updatedItem;
       }
       return item;
     });
@@ -193,8 +200,9 @@ export default function CreateInvoicePage() {
       // Successful invoice creation. Redirect to dashboard
       router.push("/admin/dashboard");
       router.refresh();
-    } catch (err: any) {
-      setValidationError(err.message || "An unexpected error occurred during submission.");
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred during submission.";
+      setValidationError(errorMsg);
       setSubmitting(false);
     }
   };

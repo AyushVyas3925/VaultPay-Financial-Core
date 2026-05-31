@@ -137,7 +137,7 @@ export const InvoiceTable = ({
             {invoices.map((invoice) => (
               <tr 
                 key={invoice.id} 
-                className="group hover:bg-slate-50/40 transition-colors duration-150"
+                className="group hover:bg-slate-50/85 transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)]"
               >
                 {/* Invoice Number */}
                 <td className="relative px-6 py-5 text-sm font-medium text-slate-900 whitespace-nowrap">
@@ -173,14 +173,14 @@ export const InvoiceTable = ({
                   {formatDate(invoice.dueDate)}
                 </td>
 
-                {/* Action Link */}
+                {/* Action Button */}
                 <td className="px-6 py-5 text-right whitespace-nowrap">
                   <Link
                     href={`${viewPathPrefix}/${invoice.id}`}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-350 text-xs font-semibold text-slate-700 px-3.5 py-1.5 shadow-xs hover:shadow-sm hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 cursor-pointer"
                   >
-                    View Details
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span>View Details</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform duration-200" />
                   </Link>
                 </td>
               </tr>

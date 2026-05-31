@@ -3,7 +3,7 @@ import { Invoice } from "@/types/invoice";
 import { StatusBadge } from "./StatusBadge";
 import { DownloadPDFButton } from "./DownloadPDFButton";
 import { PayButton } from "@/features/checkout/PayButton";
-import { Building, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 interface InvoiceDetailViewProps {
   invoice: Invoice;

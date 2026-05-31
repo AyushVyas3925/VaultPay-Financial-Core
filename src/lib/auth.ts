@@ -14,8 +14,8 @@ export async function requireAuth() {
 
 export async function requireAdmin() {
   const session = await requireAuth();
-  const user = session.user as any;
-  if (user.role !== "admin") {
+  const user = session.user;
+  if (!user || user.role !== "admin") {
     throw new Error("Forbidden");
   }
   return session;
@@ -23,8 +23,8 @@ export async function requireAdmin() {
 
 export async function requireClient() {
   const session = await requireAuth();
-  const user = session.user as any;
-  if (user.role !== "client") {
+  const user = session.user;
+  if (!user || user.role !== "client") {
     throw new Error("Forbidden");
   }
   return session;

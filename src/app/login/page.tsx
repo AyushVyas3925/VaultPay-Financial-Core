@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/AuthContext";
-import { Lock, Mail, Loader2, AlertCircle, ShieldAlert } from "lucide-react";
+import { Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
         // Successful login - Router will handle redirection via useEffect
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
