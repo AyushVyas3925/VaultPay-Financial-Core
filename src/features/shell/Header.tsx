@@ -1,0 +1,74 @@
+"use client";
+
+import React from "react";
+import { useAuth } from "@/features/auth/AuthContext";
+import { Menu, LogOut, User } from "lucide-react";
+
+interface HeaderProps {
+  onMenuToggle: () => void;
+}
+
+export const Header = ({ onMenuToggle }: HeaderProps) => {
+  const { user, role, logout } = useAuth();
+
+  return (
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 backdrop-blur-xs px-6 shadow-xs lg:px-8">
+      {/* Mobile Menu Toggle Button */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onMenuToggle}
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 lg:hidden focus:outline-none"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        
+        <h2 className="hidden text-sm font-semibold text-slate-400 lg:block uppercase tracking-wider">
+          VaultPay Core
+        </h2>
+      </div>
+
+      {/* User Information & Log Out Action */}
+      <div className="flex items-center gap-4 lg:gap-6">
+        <div className="flex items-center gap-3">
+          {/* User Details */}
+          <div className="text-right hidden sm:block">
+            <h5 className="text-sm font-semibold text-slate-900">
+              {user?.name || "System User"}
+            </h5>
+            <p className="text-xs text-slate-500">
+              {user?.email || ""}
+            </p>
+          </div>
+
+          {/* Avatar Icon */}
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+            <User className="h-4.5 w-4.5" />
+          </div>
+
+          {/* Role Badge Indicator */}
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset uppercase tracking-wide ${
+            role === "admin" 
+              ? "bg-purple-50 text-purple-700 ring-purple-700/10" 
+              : "bg-blue-50 text-blue-700 ring-blue-700/10"
+          }`}>
+            {role}
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-slate-200" />
+
+        {/* Logout Action */}
+        <button
+          onClick={() => logout()}
+          className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-red-600 transition-colors focus:outline-none"
+          title="Sign Out"
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="hidden md:inline">Sign Out</span>
+        </button>
+      </div>
+    </header>
+  );
+};
+export default Header;
