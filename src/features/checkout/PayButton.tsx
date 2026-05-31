@@ -47,6 +47,24 @@ const getCardLogo = (brand: string) => {
   }
 };
 
+const getCardLogoLarge = (brand: string) => {
+  switch (brand.toLowerCase()) {
+    case "visa":
+      return <span className="font-sans font-black text-xl italic text-white tracking-wide select-none animate-in fade-in duration-300">VISA</span>;
+    case "mastercard":
+      return (
+        <div className="flex items-center -space-x-1.5 select-none animate-in fade-in duration-300">
+          <div className="w-5.5 h-5.5 rounded-full bg-red-500 opacity-90 shadow-sm" />
+          <div className="w-5.5 h-5.5 rounded-full bg-amber-500 opacity-90 shadow-sm" />
+        </div>
+      );
+    case "amex":
+      return <span className="font-sans font-bold text-xs bg-cyan-600 border border-cyan-400 text-white px-2 py-0.5 rounded uppercase tracking-wider shadow-sm select-none animate-in fade-in duration-300">AMEX</span>;
+    default:
+      return <CreditCard className="h-5 w-5 text-slate-400 animate-in fade-in duration-300" />;
+  }
+};
+
 const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -60,6 +78,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   const [mockCardNumber, setMockCardNumber] = useState("");
   const [mockExpiry, setMockExpiry] = useState("");
   const [mockCvc, setMockCvc] = useState("");
+  const [mockCardholderName, setMockCardholderName] = useState("");
 
   // Double-submit prevention guard
   const processingRef = useRef(false);
@@ -155,6 +174,9 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
         {
           payment_method: {
             card: cardElement,
+            billing_details: {
+              name: mockCardholderName || undefined,
+            },
           },
         }
       );
@@ -196,103 +218,178 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   }
 
   return (
-    <form onSubmit={handlePayment} className="space-y-4">
-      <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-xs space-y-3">
-        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-          Credit or Debit Card
-        </label>
+    <form onSubmit={handlePayment} className="space-y-6">
+      {/* Interactive Credit Card Mockup */}
+      <div className="relative h-44 w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 shadow-xl text-white overflow-hidden select-none">
+        {/* Decorative background glow circles */}
+        <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl" />
+        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
         
-        {isMockMode ? (
-          <div className="space-y-3">
-            {/* Mock Card Input Field with autodetect logo inside */}
-            <div className="relative">
-              <input
-                type="text"
-                required
-                placeholder="Card number (e.g. 4242 4242 4242 4242)"
-                value={mockCardNumber}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/\s+/g, "");
-                  setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
-                  
-                  // Autodetect card brand
-                  if (raw.startsWith("4")) {
-                    setCardBrand("visa");
-                  } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
-                    setCardBrand("mastercard");
-                  } else if (/^(3[47])/.test(raw)) {
-                    setCardBrand("amex");
-                  } else if (raw === "") {
-                    setCardBrand("unknown");
-                  } else {
-                    setCardBrand("other");
-                  }
-                }}
-                maxLength={19}
-                className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-              />
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+        {/* Card Header: Chip and Contactless/Brand */}
+        <div className="flex justify-between items-start relative z-10">
+          <div className="flex items-center gap-3">
+            {/* Hologram Card Chip */}
+            <div className="w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 border border-amber-200/50 shadow-sm relative overflow-hidden">
+              <div className="absolute inset-x-2 inset-y-1 border border-amber-600/20 rounded-xs" />
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-600/20" />
+              <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-600/20" />
+            </div>
+            {/* Contactless Icon */}
+            <svg className="w-5 h-5 text-slate-400 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14a2 2 0 100-4 2 2 0 000 4z" />
+            </svg>
+          </div>
+          {/* Card Brand Badge */}
+          <div className="h-6 flex items-center">
+            {getCardLogoLarge(cardBrand)}
+          </div>
+        </div>
+
+        {/* Card Number */}
+        <div className="mt-6 relative z-10">
+          <div className="font-mono text-lg tracking-widest text-slate-100 drop-shadow-sm">
+            {isMockMode 
+              ? (mockCardNumber || "•••• •••• •••• ••••")
+              : (cardBrand === "unknown" ? "•••• •••• •••• ••••" : `•••• •••• •••• ${cardBrand.toUpperCase()}`)
+            }
+          </div>
+        </div>
+
+        {/* Card Footer: Cardholder and Expiry */}
+        <div className="mt-5 flex justify-between items-end relative z-10">
+          <div>
+            <span className="block text-[8px] uppercase tracking-wider text-slate-400">Cardholder Name</span>
+            <span className="block text-xs font-semibold tracking-wide text-slate-200 uppercase truncate max-w-[180px]">
+              {mockCardholderName || "Valued Client"}
+            </span>
+          </div>
+          <div className="text-right">
+            <span className="block text-[8px] uppercase tracking-wider text-slate-400">Expires</span>
+            <span className="block text-xs font-mono font-semibold tracking-wide text-slate-200">
+              {isMockMode ? (mockExpiry || "MM/YY") : "MM/YY"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border border-slate-200 rounded-xl p-5 bg-white shadow-xs space-y-4">
+        {/* Cardholder Name Input Field */}
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Cardholder Name
+          </label>
+          <input
+            type="text"
+            required
+            placeholder="e.g. Sarah Jenkins"
+            value={mockCardholderName}
+            onChange={(e) => setMockCardholderName(e.target.value)}
+            className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder:text-slate-400"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Card Details
+          </label>
+          
+          {isMockMode ? (
+            <div className="space-y-3">
+              {/* Mock Card Input Field with autodetect logo inside */}
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  placeholder="Card number (e.g. 4242 4242 4242 4242)"
+                  value={mockCardNumber}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\s+/g, "");
+                    setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
+                    
+                    // Autodetect card brand
+                    if (raw.startsWith("4")) {
+                      setCardBrand("visa");
+                    } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
+                      setCardBrand("mastercard");
+                    } else if (/^(3[47])/.test(raw)) {
+                      setCardBrand("amex");
+                    } else if (raw === "") {
+                      setCardBrand("unknown");
+                    } else {
+                      setCardBrand("other");
+                    }
+                  }}
+                  maxLength={19}
+                  className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                />
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                  {getCardLogo(cardBrand)}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  required
+                  placeholder="MM / YY"
+                  value={mockExpiry}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\s+/g, "");
+                    if (val.length === 2 && !mockExpiry.includes("/")) {
+                      setMockExpiry(val + "/");
+                    } else {
+                      setMockExpiry(val);
+                    }
+                  }}
+                  maxLength={5}
+                  className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                />
+                <input
+                  type="password"
+                  required
+                  placeholder="CVC"
+                  value={mockCvc}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    setMockCvc(val);
+                  }}
+                  maxLength={4}
+                  className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="py-3 px-3.5 bg-white flex items-center justify-between border border-slate-200 rounded-lg">
+              {/* Inline CardElement styled to match white theme */}
+              <div className="flex-1">
+                <CardElement
+                  onChange={(e) => {
+                    setCardBrand(e.brand || "unknown");
+                  }}
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: "14px",
+                        color: "#0f172a", // Slate 900
+                        fontFamily: "Inter, sans-serif",
+                        "::placeholder": {
+                          color: "#94a3b8", // Slate 400
+                        },
+                      },
+                      invalid: {
+                        color: "#ef4444", // Red 500
+                      },
+                    },
+                  }}
+                />
+              </div>
+              <div className="ml-3 shrink-0">
                 {getCardLogo(cardBrand)}
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                required
-                placeholder="MM / YY"
-                value={mockExpiry}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\s+/g, "");
-                  setMockExpiry(val);
-                }}
-                maxLength={5}
-                className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-              />
-              <input
-                type="password"
-                required
-                placeholder="CVC"
-                value={mockCvc}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  setMockCvc(val);
-                }}
-                maxLength={4}
-                className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="py-2.5 px-1 bg-white flex items-center justify-between border border-slate-100 rounded-lg">
-            {/* Inline CardElement styled to match white theme */}
-            <div className="flex-1">
-              <CardElement
-                onChange={(e) => {
-                  setCardBrand(e.brand || "unknown");
-                }}
-                options={{
-                  style: {
-                    base: {
-                      fontSize: "14px",
-                      color: "#0f172a", // Slate 900
-                      fontFamily: "Inter, sans-serif",
-                      "::placeholder": {
-                        color: "#94a3b8", // Slate 400
-                      },
-                    },
-                    invalid: {
-                      color: "#ef4444", // Red 500
-                    },
-                  },
-                }}
-              />
-            </div>
-            <div className="ml-3 shrink-0">
-              {getCardLogo(cardBrand)}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {error && (
