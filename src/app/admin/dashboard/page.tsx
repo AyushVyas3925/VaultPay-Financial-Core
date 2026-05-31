@@ -35,19 +35,13 @@ export default function AdminDashboardPage() {
   // Calculate metrics dynamically from in-memory invoice records
   const calculateMetrics = () => {
     if (!invoices || !Array.isArray(invoices)) {
-      return { totalRevenue: 0, outstanding: 0, paidCount: 0, activeClients: 0, aging1to30: 0, aging31to60: 0, aging60plus: 0 };
+      return { totalRevenue: 0, outstanding: 0, paidCount: 0, activeClients: 0 };
     }
 
     let totalRevenue = 0;
     let outstanding = 0;
     let paidCount = 0;
     const clientIds = new Set<string>();
-    
-    let aging1to30 = 0;
-    let aging31to60 = 0;
-    let aging60plus = 0;
-
-    const today = new Date();
 
     invoices.forEach((inv) => {
       clientIds.add(inv.clientId);
@@ -56,21 +50,6 @@ export default function AdminDashboardPage() {
         paidCount++;
       } else {
         outstanding += inv.total;
-        
-        // Calculate aging categories if overdue
-        if (inv.status === "overdue") {
-          const due = new Date(inv.dueDate + "T00:00:00");
-          const diffTime = Math.abs(today.getTime() - due.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          if (diffDays <= 30) {
-            aging1to30 += inv.total;
-          } else if (diffDays <= 60) {
-            aging31to60 += inv.total;
-          } else {
-            aging60plus += inv.total;
-          }
-        }
       }
     });
 
@@ -79,9 +58,6 @@ export default function AdminDashboardPage() {
       outstanding,
       paidCount,
       activeClients: clientIds.size,
-      aging1to30,
-      aging31to60,
-      aging60plus,
     };
   };
 
@@ -89,10 +65,7 @@ export default function AdminDashboardPage() {
     totalRevenue, 
     outstanding, 
     paidCount, 
-    activeClients,
-    aging1to30,
-    aging31to60,
-    aging60plus 
+    activeClients
   } = calculateMetrics();
 
   const isDataLoading = isLoading && !invoices;
@@ -164,31 +137,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Overdue Accounts Receivables Aging Analysis */}
-      {!isDataLoading && outstanding > 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Clock className="h-4 w-4 text-slate-400" />
-            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Overdue Accounts Receivables Aging Analysis
-            </h4>
-          </div>
-          <div className="grid gap-6 grid-cols-3 text-center">
-            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">1 - 30 Days</span>
-              <span className="text-lg lg:text-xl font-bold text-blue-600">{formatCurrency(aging1to30)}</span>
-            </div>
-            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">31 - 60 Days</span>
-              <span className="text-lg lg:text-xl font-bold text-orange-500">{formatCurrency(aging31to60)}</span>
-            </div>
-            <div className="py-6 px-4 bg-slate-50/40 rounded-xl border border-slate-100/60 flex flex-col justify-center">
-              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">60+ Days</span>
-              <span className="text-lg lg:text-xl font-bold text-red-600">{formatCurrency(aging60plus)}</span>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Recent Invoices List */}
       <div className="space-y-4">
