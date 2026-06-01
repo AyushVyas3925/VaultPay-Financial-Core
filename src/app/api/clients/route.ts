@@ -5,10 +5,8 @@ import { requireAdmin } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// GET /api/clients - List client summaries for Admin view
 export async function GET() {
   try {
-    // Validate Layer 2 Admin check
     await requireAdmin();
     
     const summaries = store.getClientsSummaries();

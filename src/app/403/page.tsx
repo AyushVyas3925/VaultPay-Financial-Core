@@ -8,18 +8,15 @@ import { ShieldAlert, ArrowLeft } from "lucide-react";
 export default function ForbiddenPage() {
   const { role } = useAuth();
   
-  // Resolve back-to-dashboard redirect targets dynamically based on role
   const dashboardHref = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 px-6 py-12">
       <div className="w-full max-w-md text-center space-y-6">
-        {/* Guard Lock Icon */}
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-600 border border-red-100 shadow-sm animate-pulse">
           <ShieldAlert className="h-10 w-10" />
         </div>
 
-        {/* Message Content */}
         <div className="space-y-2">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             403 - Access Denied
@@ -29,7 +26,6 @@ export default function ForbiddenPage() {
           </p>
         </div>
 
-        {/* Action button */}
         <div>
           <Link
             href={dashboardHref}

@@ -15,8 +15,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // If already authenticated, redirect to appropriate dashboard
   useEffect(() => {
     if (user && role) {
       const target = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
@@ -39,7 +37,6 @@ export default function LoginPage() {
       if (res?.error) {
         setError("Invalid email or password. Please try again.");
       } else {
-        // Successful login - Router will handle redirection via useEffect
         router.refresh();
       }
     } catch {
@@ -66,19 +63,14 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
       
-      {/* Background Slowly Rotating Abstract Mesh Blobs */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Blob 1 - Indigo/Blue */}
         <div className="absolute -top-12 -left-12 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-blue-600/20 blur-[80px] sm:blur-[110px] animate-blob-float-1 animate-blob-spin" />
         
-        {/* Blob 2 - Purple */}
         <div className="absolute -bottom-20 -right-20 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-indigo-500/15 blur-[100px] sm:blur-[130px] animate-blob-float-2 animate-blob-spin" style={{ animationDirection: "reverse" }} />
         
-        {/* Blob 3 - Soft Slate/Gray Accent */}
         <div className="absolute top-1/3 right-1/4 w-[300px] sm:w-[450px] h-[300px] sm:h-[450px] rounded-full bg-slate-400/10 blur-[70px] sm:blur-[100px] animate-blob-float-1" />
       </div>
 
-      {/* Centered Glassmorphism Card */}
       <div className="relative z-10 w-full max-w-md backdrop-blur-xl bg-slate-900/40 border border-white/10 rounded-2xl p-8 shadow-2xl">
         <div className="text-center space-y-2 mb-8">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white font-black text-2xl shadow-lg hover:scale-105 transition-transform duration-300">
@@ -100,7 +92,6 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleLogin} className="space-y-6">
-          {/* Email Address */}
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
               Email Address
@@ -120,7 +111,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
               Password
@@ -140,7 +130,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -154,14 +143,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo Credentials Quick-Fill Container */}
         <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
           <span className="block text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Demo Credentials
           </span>
 
           <div className="grid grid-cols-2 gap-3">
-            {/* Admin Fill */}
             <button
               onClick={() => fillCredentials("evelyn@nexus.com", "admin123")}
               className="flex flex-col items-center justify-center p-3 rounded-lg border border-purple-500/10 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/20 transition-all duration-300 text-left cursor-pointer"
@@ -170,7 +157,6 @@ export default function LoginPage() {
               <span className="text-[10px] text-slate-400 mt-1 font-mono">evelyn@nexus.com</span>
             </button>
 
-            {/* Client Fill */}
             <button
               onClick={() => fillCredentials("sarah@meridian.com", "client123")}
               className="flex flex-col items-center justify-center p-3 rounded-lg border border-blue-500/10 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/20 transition-all duration-300 text-left cursor-pointer"

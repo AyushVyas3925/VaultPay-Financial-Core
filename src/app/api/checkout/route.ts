@@ -11,10 +11,8 @@ const stripe = new Stripe(stripeKey, {
   apiVersion: "2025-01-27.acacia" as unknown as never
 });
 
-// POST /api/checkout - Create a Stripe PaymentIntent for an invoice
 export async function POST(req: NextRequest) {
   try {
-    // Validate Layer 2: Must be Client to pay invoices
     const session = await requireClient();
     const user = session.user;
     if (!user || !user.role) {
@@ -26,10 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing invoiceId" }, { status: 400 });
     }
 
-    // Retrieve invoice through ownership-aware Layer 3 queries
     const invoice = store.getInvoice(invoiceId, user.role, user.clientId);
     if (!invoice) {
-      // 404 to avoid leaking invoice existence (IDOR protection)
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
@@ -37,7 +33,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invoice is already paid" }, { status: 400 });
     }
 
-    // Handle mock keys for initial local developer testing
     if (stripeKey === "sk_test_placeholder" || !stripeKey) {
       console.warn("Using placeholder Stripe key. Returning simulated secret.");
       return NextResponse.json({
@@ -46,7 +41,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create Stripe PaymentIntent. Stripe expects amounts in cents.
     const amountInCents = Math.round(invoice.total * 100);
 
     const paymentIntent = await stripe.paymentIntents.create({

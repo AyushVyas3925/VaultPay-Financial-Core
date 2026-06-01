@@ -27,7 +27,6 @@ export default function ClientPaymentsPage() {
     );
   }
 
-  // Filter settled/paid invoices
   const paidInvoices = invoices
     ? invoices.filter((inv) => inv.status === "paid")
     : [];

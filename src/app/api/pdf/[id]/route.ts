@@ -6,7 +6,6 @@ import { requireAuth } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// GET /api/pdf/[id] - Secure PDF receipt generator
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -20,44 +19,36 @@ export async function GET(
 
     const { id } = await context.params;
 
-    // Load invoice with ownership validation (Layer 3 Security)
     const invoice = store.getInvoice(id, user.role, user.clientId);
     if (!invoice) {
-      // 404 to avoid document leakage
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
-    // Initialize jsPDF document
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4"
     });
 
-    // Color Palette
-    const primaryColor = "#1e293b"; // Slate 800
-    const secondaryColor = "#475569"; // Slate 600
-    const lightBg = "#f8fafc"; // Slate 50
-    const gridBorder = "#e2e8f0"; // Slate 200
+    const primaryColor = "#1e293b";
+    const secondaryColor = "#475569";
+    const lightBg = "#f8fafc";
+    const gridBorder = "#e2e8f0";
 
-    // Set Font Family & Sizes
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
     doc.setTextColor(primaryColor);
 
-    // Company Header
     doc.text("NEXUS CORPORATE SERVICES", 20, 25);
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(secondaryColor);
     doc.text("100 Broadway, 24th Floor, New York, NY 10005 | billing@nexus.com", 20, 31);
 
-    // Divider Line
     doc.setDrawColor(gridBorder);
     doc.setLineWidth(0.5);
     doc.line(20, 36, 190, 36);
 
-    // Title Block
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(primaryColor);
@@ -70,7 +61,6 @@ export async function GET(
     doc.text(`Issued Date: ${invoice.issuedDate}`, 20, 67);
     doc.text(`Due Date: ${invoice.dueDate}`, 20, 73);
 
-    // Client Info Block
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text("BILLED TO:", 110, 48);
@@ -82,7 +72,6 @@ export async function GET(
       doc.text(`Paid Date: ${invoice.paidAt}`, 110, 67);
     }
 
-    // Line Items Header Table
     let currentY = 85;
     doc.setFillColor(lightBg);
     doc.rect(20, currentY, 170, 8, "F");
@@ -95,7 +84,6 @@ export async function GET(
     doc.text("Rate", 140, currentY + 5);
     doc.text("Amount", 165, currentY + 5);
 
-    // Line Items Data Rows
     doc.setFont("helvetica", "normal");
     doc.setTextColor(secondaryColor);
     
@@ -106,11 +94,9 @@ export async function GET(
       doc.text(`$${item.rate.toFixed(2)}`, 141, currentY + 5);
       doc.text(`$${(item.quantity * item.rate).toFixed(2)}`, 166, currentY + 5);
       
-      // Border line below row
       doc.line(20, currentY + 8, 190, currentY + 8);
     });
 
-    // Summary Calculations Block
     currentY += 18;
     doc.setFont("helvetica", "normal");
     doc.setTextColor(secondaryColor);
@@ -128,7 +114,6 @@ export async function GET(
     doc.text("Total Paid / Due:", 130, currentY);
     doc.text(`$${invoice.total.toFixed(2)}`, 165, currentY);
 
-    // Footer terms
     currentY += 25;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
@@ -136,7 +121,6 @@ export async function GET(
     doc.text("Thank you for choosing Nexus Corporate Services.", 20, currentY);
     doc.text("For questions regarding billing or compliance, contact support@nexus.com.", 20, currentY + 4);
 
-    // Build PDF output buffer
     const pdfOutput = doc.output("arraybuffer");
 
     return new Response(pdfOutput, {

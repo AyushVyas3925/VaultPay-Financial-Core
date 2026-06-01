@@ -39,7 +39,6 @@ export default function ClientInvoicesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           Billing History
@@ -49,7 +48,6 @@ export default function ClientInvoicesPage() {
         </p>
       </div>
 
-      {/* Invoice Table */}
       <InvoiceTable 
         invoices={sortedInvoices} 
         viewPathPrefix="/client/invoices"

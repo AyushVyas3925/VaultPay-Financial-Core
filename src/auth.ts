@@ -16,7 +16,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         
         const user = store.getUserByEmail(credentials.email as string);
         if (user && user.passwordHash === credentials.password) {
-          // Exclude passwordHash before passing to session
           return {
             id: user.id,
             name: user.name,

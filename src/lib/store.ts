@@ -1,20 +1,18 @@
 import { User } from '@/types/user';
 import { Invoice, ClientSummary } from '@/types/invoice';
 
-// Define structure of the Global Store
 export interface MemoryStore {
   users: (User & { passwordHash: string })[];
   invoices: Invoice[];
 }
 
-// Initial seeded users
 const seedUsers: (User & { passwordHash: string })[] = [
   {
     id: 'user_evelyn',
     name: 'Evelyn Croft',
     email: 'evelyn@nexus.com',
     role: 'admin',
-    passwordHash: 'admin123', // Admin credentials for testing
+    passwordHash: 'admin123',
   },
   {
     id: 'user_sarah',
@@ -50,9 +48,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
   },
 ];
 
-// Seeded invoices with realistic NY Tax (8.875%)
 const seedInvoices: Invoice[] = [
-  // Meridian Partners Invoices (client_meridian)
   {
     id: 'inv_1',
     number: 'INV-2026-001',
@@ -103,7 +99,6 @@ const seedInvoices: Invoice[] = [
     total: 13065,
     status: 'overdue',
   },
-  // Apex Global Invoices (client_apex)
   {
     id: 'inv_4',
     number: 'INV-2026-004',
@@ -138,7 +133,6 @@ const seedInvoices: Invoice[] = [
     total: 9254.38,
     status: 'paid',
   },
-  // Vanguard Advisory (client_vanguard)
   {
     id: 'inv_6',
     number: 'INV-2026-006',
@@ -189,7 +183,6 @@ const seedInvoices: Invoice[] = [
     total: 32662.5,
     status: 'overdue',
   },
-  // Horizon Venture (client_horizon)
   {
     id: 'inv_9',
     number: 'INV-2026-009',
@@ -223,7 +216,6 @@ const seedInvoices: Invoice[] = [
     total: 48993.75,
     status: 'paid',
   },
-  // Additional mixed invoices to satisfy "15+ invoices seeded"
   {
     id: 'inv_11',
     number: 'INV-2026-011',
@@ -323,7 +315,6 @@ const seedInvoices: Invoice[] = [
   },
 ];
 
-// Initialize global store for persistent hot-reload safe memory reference
 declare global {
   var globalInvoiceStore: MemoryStore | undefined;
 }
@@ -337,7 +328,6 @@ if (!globalThis.globalInvoiceStore) {
 
 const localStore = globalThis.globalInvoiceStore;
 
-// Export structured API methods for working with the in-memory data store
 export const store = {
   getUsers() {
     return localStore.users;
@@ -347,7 +337,6 @@ export const store = {
     return localStore.users.find(u => u.email.toLowerCase() === email.toLowerCase());
   },
 
-  // SECURITY Layer 3: Scopes data based on role + client binding
   getInvoices(role: string, clientId?: string): Invoice[] {
     if (role === 'admin') {
       return localStore.invoices;
@@ -358,7 +347,6 @@ export const store = {
     return [];
   },
 
-  // SECURITY Layer 3: Validates ownership before returning details
   getInvoice(id: string, role: string, clientId?: string): Invoice | null {
     const invoice = localStore.invoices.find(i => i.id === id);
     if (!invoice) return null;
@@ -369,11 +357,9 @@ export const store = {
     if (role === 'client' && clientId && invoice.clientId === clientId) {
       return invoice;
     }
-    // Prevent IDOR: Return null to act as 404 (don't leak document presence)
     return null;
   },
 
-  // ADMIN Action: Adds invoice with calculated total breakdown
   createInvoice(data: {
     clientId: string;
     clientName: string;
@@ -414,7 +400,6 @@ export const store = {
     return newInvoice;
   },
 
-  // STRIPE WEBHOOK ACTION ONLY
   markPaid(invoiceId: string): boolean {
     const idx = localStore.invoices.findIndex(i => i.id === invoiceId);
     if (idx !== -1) {
@@ -428,29 +413,24 @@ export const store = {
     return false;
   },
 
-  // ADMIN Utility: Summarize clients list for dashboard metrics
   getClientsSummaries(): ClientSummary[] {
     const clientsMap = new Map<string, { name: string; email: string; invoices: Invoice[] }>();
 
-    // Collect clients from seeded users to maintain clean mappings
     localStore.users.forEach(u => {
       if (u.role === 'client' && u.clientId) {
         clientsMap.set(u.clientId, { name: u.name, email: u.email, invoices: [] });
       }
     });
 
-    // Match invoices to client buckets
     localStore.invoices.forEach(inv => {
       const bucket = clientsMap.get(inv.clientId);
       if (bucket) {
         bucket.invoices.push(inv);
       } else {
-        // Fallback fallback bucket mapping
         clientsMap.set(inv.clientId, { name: inv.clientName, email: inv.clientEmail, invoices: [inv] });
       }
     });
 
-    // Map buckets into ClientSummary items
     return Array.from(clientsMap.entries()).map(([id, info]) => {
       const totalBilled = info.invoices.reduce((sum, i) => sum + i.total, 0);
       return {

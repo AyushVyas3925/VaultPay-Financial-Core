@@ -5,7 +5,6 @@ import { requireAuth, requireAdmin } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// GET /api/invoices - List invoices based on authentication role
 export async function GET() {
   try {
     const session = await requireAuth();
@@ -25,21 +24,17 @@ export async function GET() {
   }
 }
 
-// POST /api/invoices - Create a new invoice (Admin only)
 export async function POST(req: NextRequest) {
   try {
-    // Validate Layer 2 Admin check
     await requireAdmin();
     
     const body = await req.json();
     const { clientId, clientName, clientEmail, dueDate, lineItems } = body;
 
-    // Simple validation
     if (!clientId || !clientName || !clientEmail || !dueDate || !lineItems || !Array.isArray(lineItems) || lineItems.length === 0) {
       return NextResponse.json({ error: "Missing required fields or invalid line items" }, { status: 400 });
     }
 
-    // Create the invoice
     const newInvoice = store.createInvoice({
       clientId,
       clientName,

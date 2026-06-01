@@ -69,7 +69,7 @@ export default function AdminInvoiceDetailPage() {
       <InvoiceDetailView
         invoice={invoice}
         viewerRole="admin"
-        onPaymentSuccess={() => mutate()} // Admin won't pay, but good to have signature matching
+        onPaymentSuccess={() => mutate()}
       />
     </div>
   );

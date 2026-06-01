@@ -8,9 +8,7 @@ import {
   useStripe, 
   useElements 
 } from "@stripe/react-stripe-js";
-import { CreditCard, Loader2, AlertCircle, Lock } from "lucide-react";
-
-// Initialize Stripe Promise
+import { CreditCard, Loader2, AlertCircle, Lock, X } from "lucide-react";
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const stripePromise = stripePublishableKey !== "pk_test_placeholder" && stripePublishableKey
   ? loadStripe(stripePublishableKey)
@@ -20,6 +18,7 @@ interface InnerPayFormProps {
   invoiceId: string;
   amount: number;
   onSuccess: () => void;
+  onClose: () => void;
 }
 
 const getCardLogo = (brand: string) => {
@@ -65,7 +64,7 @@ const getCardLogoLarge = (brand: string) => {
   }
 };
 
-const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
+const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   
@@ -73,14 +72,11 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
   const [error, setError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [cardBrand, setCardBrand] = useState<string>("unknown");
-  
-  // Custom mock inputs to prevent stripe-elements-crash
   const [mockCardNumber, setMockCardNumber] = useState("");
   const [mockExpiry, setMockExpiry] = useState("");
   const [mockCvc, setMockCvc] = useState("");
   const [mockCardholderName, setMockCardholderName] = useState("");
 
-  // Double-submit prevention guard
   const processingRef = useRef(false);
 
   const formatCurrency = (val: number) => {
@@ -97,10 +93,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     setError(null);
 
     if (processingRef.current) return;
-    
-    // Acquire elements check
     if (isMockMode) {
-      // DEV MODE / MOCK BYPASS: Trigger simulated payment when credentials are missing
       processingRef.current = true;
       setLoading(true);
       
@@ -116,7 +109,6 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
           throw new Error(errData.error || "Checkout validation failed");
         }
 
-        // Send mock success webhook update directly to backend
         const mockWebhookRes = await fetch("/api/webhooks/stripe", {
           method: "POST",
           headers: {
@@ -144,7 +136,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     }
 
     if (!stripe || !elements) {
-      return; // Stripe SDK not fully loaded
+      return;
     }
 
     const cardElement = elements.getElement(CardElement);
@@ -154,7 +146,6 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     setLoading(true);
 
     try {
-      // Step 1: Create PaymentIntent on backend API
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -168,7 +159,6 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
 
       const { clientSecret } = await res.json();
 
-      // Step 2: Confirm card payment in frontend
       const { paymentIntent, error: stripeError } = await stripe.confirmCardPayment(
         clientSecret,
         {
@@ -187,7 +177,6 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
         setPaymentSuccess(true);
-        // Fire success callback after showing confirmation animation
         setTimeout(() => {
           onSuccess();
         }, 1500);
@@ -201,233 +190,249 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess }: InnerPayFormProps) => {
     }
   };
 
-  if (paymentSuccess) {
-    return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center space-y-3">
-        {/* Animated Drawing SVG Checkmark (Satisfying Dopamine Effect) */}
-        <div className="flex justify-center">
-          <svg className="h-12 w-12 text-emerald-600" viewBox="0 0 52 52" fill="none" stroke="currentColor" strokeWidth="4">
-            <circle cx="26" cy="26" r="23" stroke="currentColor" strokeDasharray="150" strokeDashoffset="150" className="animate-draw-circle" />
-            <path d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="50" strokeDashoffset="50" className="animate-draw-check" style={{ animationDelay: "0.25s" }} />
-          </svg>
-        </div>
-        <h4 className="font-extrabold text-emerald-800 tracking-tight">Payment Succeeded!</h4>
-        <p className="text-xs text-emerald-600">Your billing receipt is synchronized. Loading details...</p>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={handlePayment} className="space-y-6">
-      {/* Interactive Credit Card Mockup */}
-      <div className="relative h-44 w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 shadow-xl text-white overflow-hidden select-none">
-        {/* Decorative background glow circles */}
-        <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl" />
-        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-        
-        {/* Card Header: Chip and Contactless/Brand */}
-        <div className="flex justify-between items-start relative z-10">
-          <div className="flex items-center gap-3">
-            {/* Hologram Card Chip */}
-            <div className="w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 border border-amber-200/50 shadow-sm relative overflow-hidden">
-              <div className="absolute inset-x-2 inset-y-1 border border-amber-600/20 rounded-xs" />
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-600/20" />
-              <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-600/20" />
-            </div>
-            {/* Contactless Icon */}
-            <svg className="w-5 h-5 text-slate-400 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14a2 2 0 100-4 2 2 0 000 4z" />
-            </svg>
-          </div>
-          {/* Card Brand Badge */}
-          <div className="h-6 flex items-center">
-            {getCardLogoLarge(cardBrand)}
-          </div>
-        </div>
-
-        {/* Card Number */}
-        <div className="mt-6 relative z-10">
-          <div className="font-mono text-lg tracking-widest text-slate-100 drop-shadow-sm">
-            {isMockMode 
-              ? (mockCardNumber || "•••• •••• •••• ••••")
-              : (cardBrand === "unknown" ? "•••• •••• •••• ••••" : `•••• •••• •••• ${cardBrand.toUpperCase()}`)
-            }
-          </div>
-        </div>
-
-        {/* Card Footer: Cardholder and Expiry */}
-        <div className="mt-5 flex justify-between items-end relative z-10">
+    <div 
+      className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading && !paymentSuccess) {
+          onClose();
+        }
+      }}
+    >
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 relative flex flex-col animate-in zoom-in-95 duration-200 text-left">
+        <div className="flex justify-between items-center mb-5 border-b border-slate-200/80 pb-3">
           <div>
-            <span className="block text-[8px] uppercase tracking-wider text-slate-400">Cardholder Name</span>
-            <span className="block text-xs font-semibold tracking-wide text-slate-200 uppercase truncate max-w-[180px]">
-              {mockCardholderName || "Valued Client"}
-            </span>
+            <h3 className="text-base font-extrabold text-slate-900 tracking-tight">Secure Checkout</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nexus Billing Gateway</p>
           </div>
-          <div className="text-right">
-            <span className="block text-[8px] uppercase tracking-wider text-slate-400">Expires</span>
-            <span className="block text-xs font-mono font-semibold tracking-wide text-slate-200">
-              {isMockMode ? (mockExpiry || "MM/YY") : "MM/YY"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="border border-slate-200 rounded-xl p-5 bg-white shadow-xs space-y-4">
-        {/* Cardholder Name Input Field */}
-        <div>
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Cardholder Name
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="e.g. Sarah Jenkins"
-            value={mockCardholderName}
-            onChange={(e) => setMockCardholderName(e.target.value)}
-            className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder:text-slate-400"
-          />
+          {!loading && !paymentSuccess && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-8 w-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors focus:outline-none cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
-        <div>
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Card Details
-          </label>
-          
-          {isMockMode ? (
-            <div className="space-y-3">
-              {/* Mock Card Input Field with autodetect logo inside */}
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  placeholder="Card number (e.g. 4242 4242 4242 4242)"
-                  value={mockCardNumber}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\s+/g, "");
-                    setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
-                    
-                    // Autodetect card brand
-                    if (raw.startsWith("4")) {
-                      setCardBrand("visa");
-                    } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
-                      setCardBrand("mastercard");
-                    } else if (/^(3[47])/.test(raw)) {
-                      setCardBrand("amex");
-                    } else if (raw === "") {
-                      setCardBrand("unknown");
-                    } else {
-                      setCardBrand("other");
-                    }
-                  }}
-                  maxLength={19}
-                  className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                />
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                  {getCardLogo(cardBrand)}
+        {isMockMode && !paymentSuccess && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-[11px] font-semibold mb-4">
+            Running in local mock payment mode. Card Element simulated.
+          </div>
+        )}
+
+        {paymentSuccess ? (
+          <div className="rounded-xl border border-emerald-250 bg-emerald-50/50 p-6 text-center space-y-3 my-2">
+            <div className="flex justify-center">
+              <svg className="h-12 w-12 text-emerald-600" viewBox="0 0 52 52" fill="none" stroke="currentColor" strokeWidth="4">
+                <circle cx="26" cy="26" r="23" stroke="currentColor" strokeDasharray="150" strokeDashoffset="150" className="animate-draw-circle" />
+                <path d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="50" strokeDashoffset="50" className="animate-draw-check" style={{ animationDelay: "0.25s" }} />
+              </svg>
+            </div>
+            <h4 className="font-extrabold text-emerald-800 tracking-tight text-sm">Payment Succeeded!</h4>
+            <p className="text-xs text-emerald-600">Your billing receipt is synchronized. Loading details...</p>
+          </div>
+        ) : (
+          <form onSubmit={handlePayment} className="space-y-6">
+            <div className="relative h-44 w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 shadow-xl text-white overflow-hidden select-none">
+              <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl" />
+              <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
+              
+              <div className="flex justify-between items-start relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 border border-amber-200/50 shadow-sm relative overflow-hidden">
+                    <div className="absolute inset-x-2 inset-y-1 border border-amber-600/20 rounded-xs" />
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-amber-600/20" />
+                    <div className="absolute top-1/2 left-0 right-0 h-px bg-amber-600/20" />
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14a2 2 0 100-4 2 2 0 000 4z" />
+                  </svg>
+                </div>
+                <div className="h-6 flex items-center">
+                  {getCardLogoLarge(cardBrand)}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="mt-6 relative z-10">
+                <div className="font-mono text-lg tracking-widest text-slate-100 drop-shadow-sm">
+                  {isMockMode 
+                    ? (mockCardNumber || "•••• •••• •••• ••••")
+                    : (cardBrand === "unknown" ? "•••• •••• •••• ••••" : `•••• •••• •••• ${cardBrand.toUpperCase()}`)
+                  }
+                </div>
+              </div>
+
+              <div className="mt-5 flex justify-between items-end relative z-10">
+                <div>
+                  <span className="block text-[8px] uppercase tracking-wider text-slate-400">Cardholder Name</span>
+                  <span className="block text-xs font-semibold tracking-wide text-slate-200 uppercase truncate max-w-[180px]">
+                    {mockCardholderName || "Valued Client"}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[8px] uppercase tracking-wider text-slate-400">Expires</span>
+                  <span className="block text-xs font-mono font-semibold tracking-wide text-slate-200">
+                    {isMockMode ? (mockExpiry || "MM/YY") : "MM/YY"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl p-5 bg-white shadow-xs space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Cardholder Name
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="MM / YY"
-                  value={mockExpiry}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\s+/g, "");
-                    if (val.length === 2 && !mockExpiry.includes("/")) {
-                      setMockExpiry(val + "/");
-                    } else {
-                      setMockExpiry(val);
-                    }
-                  }}
-                  maxLength={5}
-                  className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                  placeholder="e.g. Sarah Jenkins"
+                  value={mockCardholderName}
+                  onChange={(e) => setMockCardholderName(e.target.value)}
+                  className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder:text-slate-400"
                 />
-                <input
-                  type="password"
-                  required
-                  placeholder="CVC"
-                  value={mockCvc}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    setMockCvc(val);
-                  }}
-                  maxLength={4}
-                  className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Card Details
+                </label>
+                
+                {isMockMode ? (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Card number (e.g. 4242 4242 4242 4242)"
+                        value={mockCardNumber}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\s+/g, "");
+                          setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
+                          
+                          if (raw.startsWith("4")) {
+                            setCardBrand("visa");
+                          } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
+                            setCardBrand("mastercard");
+                          } else if (/^(3[47])/.test(raw)) {
+                            setCardBrand("amex");
+                          } else if (raw === "") {
+                            setCardBrand("unknown");
+                          } else {
+                            setCardBrand("other");
+                          }
+                        }}
+                        maxLength={19}
+                        className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                        {getCardLogo(cardBrand)}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        required
+                        placeholder="MM / YY"
+                        value={mockExpiry}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\s+/g, "");
+                          if (val.length === 2 && !mockExpiry.includes("/")) {
+                            setMockExpiry(val + "/");
+                          } else {
+                            setMockExpiry(val);
+                          }
+                        }}
+                        maxLength={5}
+                        className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      />
+                      <input
+                        type="password"
+                        required
+                        placeholder="CVC"
+                        value={mockCvc}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          setMockCvc(val);
+                        }}
+                        maxLength={4}
+                        className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-3 px-3.5 bg-white flex items-center justify-between border border-slate-200 rounded-lg">
+                    <div className="flex-1">
+                      <CardElement
+                        onChange={(e) => {
+                          setCardBrand(e.brand || "unknown");
+                        }}
+                        options={{
+                          style: {
+                            base: {
+                              fontSize: "14px",
+                              color: "#0f172a",
+                              fontFamily: "Inter, sans-serif",
+                              "::placeholder": {
+                                color: "#94a3b8",
+                              },
+                            },
+                            invalid: {
+                              color: "#ef4444",
+                            },
+                          },
+                        }}
+                      />
+                    </div>
+                    <div className="ml-3 shrink-0">
+                      {getCardLogo(cardBrand)}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          ) : (
-            <div className="py-3 px-3.5 bg-white flex items-center justify-between border border-slate-200 rounded-lg">
-              {/* Inline CardElement styled to match white theme */}
-              <div className="flex-1">
-                <CardElement
-                  onChange={(e) => {
-                    setCardBrand(e.brand || "unknown");
-                  }}
-                  options={{
-                    style: {
-                      base: {
-                        fontSize: "14px",
-                        color: "#0f172a", // Slate 900
-                        fontFamily: "Inter, sans-serif",
-                        "::placeholder": {
-                          color: "#94a3b8", // Slate 400
-                        },
-                      },
-                      invalid: {
-                        color: "#ef4444", // Red 500
-                      },
-                    },
-                  }}
-                />
+
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200/50 p-3.5 text-xs text-red-700 font-semibold">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
               </div>
-              <div className="ml-3 shrink-0">
-                {getCardLogo(cardBrand)}
-              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-3 text-sm font-semibold text-white shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                  <span>Processing Payment...</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4.5 w-4.5" />
+                  <span>Pay {formatCurrency(amount)}</span>
+                </>
+              )}
+            </button>
+
+            <span className="block text-center text-[10px] text-slate-400 font-mono">
+              Test Card Hint: 4242 4242 4242 4242 | Expiry: 12/28 | CVC: 123
+            </span>
+
+            <div className="flex items-center justify-center gap-1.5 pt-2 text-[10px] text-slate-400 font-semibold">
+              <Lock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>Encrypted using 256-bit SSL connection. Handled by Stripe (PCI-DSS compliant).</span>
             </div>
-          )}
-        </div>
-      </div>
-
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200/50 p-3.5 text-xs text-red-700 font-semibold">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Action Button */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-3 text-sm font-semibold text-white shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none cursor-pointer"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="h-4.5 w-4.5 animate-spin" />
-            <span>Processing Payment...</span>
-          </>
-        ) : (
-          <>
-            <CreditCard className="h-4.5 w-4.5" />
-            <span>Pay {formatCurrency(amount)}</span>
-          </>
+          </form>
         )}
-      </button>
-
-      <span className="block text-center text-[10px] text-slate-400 font-mono">
-        Test Card Hint: 4242 4242 4242 4242 | Expiry: 12/28 | CVC: 123
-      </span>
-
-      {/* Explicit Security Signatures (Trust UX Indicator) */}
-      <div className="flex items-center justify-center gap-1.5 pt-2 text-[10px] text-slate-400 font-semibold">
-        <Lock className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-        <span>Encrypted using 256-bit SSL connection. Handled by Stripe (PCI-DSS compliant).</span>
       </div>
-    </form>
+    </div>
   );
 };
 
@@ -441,21 +446,31 @@ export const PayButton = ({ invoiceId, amount, onSuccess }: PayButtonProps) => {
   const [showForm, setShowForm] = useState(false);
 
   if (showForm) {
-    // If publishable key is missing, load elements in mockup form bypass mode
     if (!stripePromise) {
       return (
-        <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-xs font-semibold">
-            Running in local mock payment mode. Card Element simulated.
-          </div>
-          <InnerPayForm invoiceId={invoiceId} amount={amount} onSuccess={onSuccess} />
-        </div>
+        <InnerPayForm 
+          invoiceId={invoiceId} 
+          amount={amount} 
+          onSuccess={() => {
+            onSuccess();
+            setShowForm(false);
+          }} 
+          onClose={() => setShowForm(false)} 
+        />
       );
     }
 
     return (
       <Elements stripe={stripePromise}>
-        <InnerPayForm invoiceId={invoiceId} amount={amount} onSuccess={onSuccess} />
+        <InnerPayForm 
+          invoiceId={invoiceId} 
+          amount={amount} 
+          onSuccess={() => {
+            onSuccess();
+            setShowForm(false);
+          }} 
+          onClose={() => setShowForm(false)} 
+        />
       </Elements>
     );
   }
@@ -463,7 +478,7 @@ export const PayButton = ({ invoiceId, amount, onSuccess }: PayButtonProps) => {
   return (
     <button
       onClick={() => setShowForm(true)}
-      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2.5 shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2.5 shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none cursor-pointer"
     >
       <CreditCard className="h-4.5 w-4.5" />
       Pay Invoice

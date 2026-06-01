@@ -21,13 +21,11 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Load invoices for search
   const { data: invoices, isLoading } = useSWR<Invoice[]>(
     isOpen ? "/api/invoices" : null,
     fetcher
   );
 
-  // Auto focus input when opened
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -38,7 +36,6 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
     }
   }, [isOpen]);
 
-  // Handle global escape key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -49,7 +46,6 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Filter invoices based on fuzzy match
   const filteredInvoices = invoices
     ? invoices.filter((inv) => {
         const q = query.toLowerCase().trim();
@@ -61,10 +57,9 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
           item.description.toLowerCase().includes(q)
         );
         return matchNum || matchClient || matchItems;
-      }).slice(0, 8) // Limit to top 8 results for speed and visual spacing
+      }).slice(0, 8)
     : [];
 
-  // Keyboard navigation inside modal
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (filteredInvoices.length === 0) return;
 
@@ -86,7 +81,6 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
     onClose();
   };
 
-  // Close when clicking backdrop
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();

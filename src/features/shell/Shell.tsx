@@ -8,7 +8,6 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Defer collapsed state hydration to avoid synchronous cascading renders
   useEffect(() => {
     const val = localStorage.getItem("vp_sidebar_collapsed");
     if (val === "true") {
@@ -26,7 +25,6 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar Navigation */}
       <Sidebar 
         isOpen={sidebarOpen} 
         setIsOpen={setSidebarOpen} 
@@ -34,14 +32,11 @@ export const Shell = ({ children }: { children: React.ReactNode }) => {
         onToggleCollapse={handleToggleCollapse} 
       />
 
-      {/* Main Content Layout Wrapper - transitions layout width dynamically */}
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
         sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
       }`}>
-        {/* Top Header */}
         <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-        {/* Viewport Content */}
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>

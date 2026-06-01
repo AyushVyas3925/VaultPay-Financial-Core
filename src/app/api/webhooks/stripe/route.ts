@@ -9,12 +9,10 @@ const stripe = new Stripe(stripeKey, {
   apiVersion: "2025-01-27.acacia" as unknown as never
 });
 
-// POST /api/webhooks/stripe - Stripe Webhook listener
 export async function POST(req: NextRequest) {
   const payload = await req.text();
   const signature = req.headers.get("stripe-signature");
 
-  // Dev bypass fallback for local testing without Stripe CLI
   if (webhookSecret === "whsec_placeholder" && signature === "mock_signature") {
     try {
       const data = JSON.parse(payload);
@@ -43,7 +41,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Webhook Error: ${errorMsg}` }, { status: 400 });
   }
 
-  // Handle successful payments
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
     const invoiceId = paymentIntent.metadata.invoiceId;

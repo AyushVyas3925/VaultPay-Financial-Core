@@ -17,7 +17,6 @@ export const dynamic = "force-dynamic";
 const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function ClientDashboardPage() {
-  // SWR Polling every 2 seconds for real-time dashboard state updates
   const { data: invoices, error, isLoading } = useSWR<Invoice[]>("/api/invoices", fetcher, {
     refreshInterval: 2000,
     revalidateOnFocus: true
@@ -30,7 +29,6 @@ export default function ClientDashboardPage() {
     }).format(amount);
   };
 
-  // Calculate client metrics dynamically
   const calculateMetrics = () => {
     if (!invoices || !Array.isArray(invoices)) {
       return { outstanding: 0, paidTotal: 0, totalCount: 0 };
@@ -67,7 +65,6 @@ export default function ClientDashboardPage() {
     );
   }
 
-  // Filter outstanding/unpaid invoices
   const unpaidInvoices = invoices
     ? invoices.filter((inv) => inv.status !== "paid")
     : [];

@@ -70,7 +70,6 @@ export default function ClientInvoiceDetailPage() {
         invoice={invoice}
         viewerRole="client"
         onPaymentSuccess={() => {
-          // Mutate the local SWR cache to transition to Paid state instantly on payment confirmation
           mutate();
         }}
       />

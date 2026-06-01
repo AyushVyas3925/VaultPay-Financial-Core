@@ -5,5 +5,5 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  clientId?: string; // Optional client binding ID for client-scoped invoicing
+  clientId?: string;
 }

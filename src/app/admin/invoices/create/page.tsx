@@ -20,12 +20,9 @@ interface FormLineItem {
 export default function CreateInvoicePage() {
   const router = useRouter();
 
-  // Load clients to populate dropdown
   const { data: clients } = useSWR<ClientSummary[]>("/api/clients", fetcher);
-  // Load invoices to calculate past client averages and terms
   const { data: invoices } = useSWR<Invoice[]>("/api/invoices", fetcher);
 
-  // Form State
   const [selectedClientId, setSelectedClientId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [lineItems, setLineItems] = useState<FormLineItem[]>([
@@ -34,10 +31,8 @@ export default function CreateInvoicePage() {
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   
-  // Suggestion parameters
   const [suggestion, setSuggestion] = useState<{ avgRate: number; avgDays: number } | null>(null);
 
-  // Dynamically calculate average billing amount and terms on client change
   useEffect(() => {
     if (!selectedClientId || !invoices || invoices.length === 0) {
       setTimeout(() => setSuggestion(null), 0);
@@ -50,11 +45,9 @@ export default function CreateInvoicePage() {
       return;
     }
 
-    // Calculate average invoice total
     const totalBilled = clientInvoices.reduce((sum, inv) => sum + inv.subtotal, 0);
     const avgRate = Math.round(totalBilled / clientInvoices.length);
 
-    // Calculate average terms (due date minus issued date)
     const totalDays = clientInvoices.reduce((sum, inv) => {
       const issued = new Date(inv.issuedDate);
       const due = new Date(inv.dueDate);
@@ -79,7 +72,6 @@ export default function CreateInvoicePage() {
     }, 0);
   }, [selectedClientId, invoices]);
 
-  // Auto-calculated totals in UI
   const calculateTotals = () => {
     const subtotal = lineItems.reduce((acc, current) => acc + (current.quantity * current.rate), 0);
     const tax = Math.round(subtotal * 0.08875 * 100) / 100;
@@ -89,18 +81,15 @@ export default function CreateInvoicePage() {
 
   const { subtotal, tax, total } = calculateTotals();
 
-  // Handle adding line item
   const addLineItem = () => {
     setLineItems([...lineItems, { description: "", quantity: 1, rate: 0 }]);
   };
 
-  // Handle removing line item
   const removeLineItem = (index: number) => {
     if (lineItems.length === 1) return;
     setLineItems(lineItems.filter((_, idx) => idx !== index));
   };
 
-  // Handle line item change
   const handleItemChange = (index: number, field: keyof FormLineItem, value: string | number) => {
     const updated = lineItems.map((item, idx) => {
       if (idx === index) {
@@ -119,7 +108,6 @@ export default function CreateInvoicePage() {
     setLineItems(updated);
   };
 
-  // Frictionless line item rows (Tab key additions)
   const handleRateKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Tab" && !e.shiftKey && index === lineItems.length - 1) {
       e.preventDefault();
@@ -134,12 +122,10 @@ export default function CreateInvoicePage() {
     }
   };
 
-  // Submit Invoice Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
 
-    // Form validations
     if (!selectedClientId) {
       setValidationError("Please select a client.");
       return;
@@ -155,7 +141,6 @@ export default function CreateInvoicePage() {
       return;
     }
 
-    // Line item validations
     for (const item of lineItems) {
       if (!item.description.trim()) {
         setValidationError("All line items must have descriptions.");
@@ -197,7 +182,6 @@ export default function CreateInvoicePage() {
         throw new Error(err.error || "Failed to create invoice");
       }
 
-      // Successful invoice creation. Redirect to dashboard
       router.push("/admin/dashboard");
       router.refresh();
     } catch (err) {

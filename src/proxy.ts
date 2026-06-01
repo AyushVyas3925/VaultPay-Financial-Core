@@ -13,12 +13,10 @@ export default auth((req) => {
   const isAuthRoute = nextUrl.pathname.startsWith("/api/auth") || isLoginPath;
   const isWebhookRoute = nextUrl.pathname === "/api/webhooks/stripe";
 
-  // Bypass webhook signature validations and NextAuth internals
   if (isWebhookRoute || isAuthRoute) {
     return;
   }
 
-  // Protect admin, client, and secure api routes
   if (!isLoggedIn && (isAdminRoute || isClientRoute || isApiRoute)) {
     if (isApiRoute) {
       return new Response(JSON.stringify({ error: "Unauthenticated" }), {
@@ -29,9 +27,7 @@ export default auth((req) => {
     return Response.redirect(new URL("/login", nextUrl));
   }
 
-  // Enforce specific Role-Based Access Control (RBAC) boundaries
   if (isLoggedIn) {
-    // If they are on /login, redirect to their proper dashboard
     if (isLoginPath) {
       const target = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
       return Response.redirect(new URL(target, nextUrl));
@@ -46,7 +42,6 @@ export default auth((req) => {
   }
 });
 
-// Configure middleware matching scope
 export const config = {
   matcher: [
     "/admin/:path*",

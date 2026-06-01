@@ -19,7 +19,6 @@ export const dynamic = "force-dynamic";
 const fetcher = (url: string) => fetch(url, { cache: "no-store" }).then((res) => res.json());
 
 export default function AdminDashboardPage() {
-  // SWR polling configured for real-time synchronization every 2 seconds
   const { data: invoices, error, isLoading } = useSWR<Invoice[]>("/api/invoices", fetcher, {
     refreshInterval: 2000,
     revalidateOnFocus: true
@@ -32,7 +31,6 @@ export default function AdminDashboardPage() {
     }).format(amount);
   };
 
-  // Calculate metrics dynamically from in-memory invoice records
   const calculateMetrics = () => {
     if (!invoices || !Array.isArray(invoices)) {
       return { totalRevenue: 0, outstanding: 0, paidCount: 0, activeClients: 0 };

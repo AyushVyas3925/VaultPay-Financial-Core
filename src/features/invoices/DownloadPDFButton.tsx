@@ -14,11 +14,9 @@ export const DownloadPDFButton = ({ invoiceId, invoiceNumber }: DownloadPDFButto
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      // Fetch binary PDF data from API
       const res = await fetch(`/api/pdf/${invoiceId}`, {
         method: "GET",
         headers: {
-          // Send no-cache to force live render
           "Cache-Control": "no-cache",
         },
       });
@@ -30,14 +28,12 @@ export const DownloadPDFButton = ({ invoiceId, invoiceNumber }: DownloadPDFButto
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       
-      // Native anchor trigger
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", `${invoiceNumber}.pdf`);
       document.body.appendChild(link);
       link.click();
       
-      // Memory cleanup: remove link and revoke blob
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {

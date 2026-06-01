@@ -42,12 +42,11 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
   const menuItems = isAdmin ? adminMenu : isClient ? clientMenu : [];
 
   const handleLinkClick = () => {
-    setIsOpen(false); // Close mobile sidebar on link click
+    setIsOpen(false);
   };
 
   return (
     <>
-      {/* Mobile Sidebar Overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden"
@@ -55,13 +54,11 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
         />
       )}
 
-      {/* Sidebar Drawer Container */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
       >
-        {/* Brand Logo Header */}
         <div className="flex h-16 items-center justify-between px-6 border-b border-slate-100">
           <Link href="/" className="flex items-center gap-2" onClick={handleLinkClick}>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-lg shadow-sm shrink-0">
@@ -74,7 +71,6 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
             )}
           </Link>
 
-          {/* Desktop Collapse Trigger */}
           {!isOpen && (
             <button
               onClick={onToggleCollapse}
