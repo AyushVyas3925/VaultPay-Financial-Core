@@ -7,6 +7,11 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
+
+if (!stripeKey || stripeKey === "sk_test_placeholder") {
+  console.error("STRIPE_SECRET_KEY is not configured for checkout.");
+}
+
 const stripe = new Stripe(stripeKey, {
   apiVersion: "2025-01-27.acacia" as unknown as never
 });
@@ -33,12 +38,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invoice is already paid" }, { status: 400 });
     }
 
-    if (stripeKey === "sk_test_placeholder" || !stripeKey) {
-      console.warn("Using placeholder Stripe key. Returning simulated secret.");
-      return NextResponse.json({
-        clientSecret: "mock_secret_" + invoice.id + "_" + Date.now(),
-        isMock: true
-      });
+    if (!stripeKey || stripeKey === "sk_test_placeholder") {
+      return NextResponse.json(
+        { error: "Payment service is not configured. Contact the administrator." },
+        { status: 503 }
+      );
     }
 
     const amountInCents = Math.round(invoice.total * 100);

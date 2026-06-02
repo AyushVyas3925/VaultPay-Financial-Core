@@ -9,8 +9,9 @@ import {
   useElements 
 } from "@stripe/react-stripe-js";
 import { CreditCard, Loader2, AlertCircle, Lock, X } from "lucide-react";
+
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
-const stripePromise = stripePublishableKey !== "pk_test_placeholder" && stripePublishableKey
+const stripePromise = stripePublishableKey
   ? loadStripe(stripePublishableKey)
   : null;
 
@@ -72,10 +73,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
   const [error, setError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [cardBrand, setCardBrand] = useState<string>("unknown");
-  const [mockCardNumber, setMockCardNumber] = useState("");
-  const [mockExpiry, setMockExpiry] = useState("");
-  const [mockCvc, setMockCvc] = useState("");
-  const [mockCardholderName, setMockCardholderName] = useState("");
+  const [cardholderName, setCardholderName] = useState("");
 
   const processingRef = useRef(false);
 
@@ -86,56 +84,13 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
     }).format(val);
   };
 
-  const isMockMode = !stripePublishableKey || stripePublishableKey === "pk_test_placeholder";
-
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (processingRef.current) return;
-    if (isMockMode) {
-      processingRef.current = true;
-      setLoading(true);
-      
-      try {
-        const checkRes = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ invoiceId }),
-        });
-        
-        if (!checkRes.ok) {
-          const errData = await checkRes.json();
-          throw new Error(errData.error || "Checkout validation failed");
-        }
-
-        const mockWebhookRes = await fetch("/api/webhooks/stripe", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "stripe-signature": "mock_signature",
-          },
-          body: JSON.stringify({ invoiceId }),
-        });
-
-        if (!mockWebhookRes.ok) {
-          throw new Error("Failed to trigger mock webhook state synchronization");
-        }
-
-        setPaymentSuccess(true);
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Dev payment mock failure");
-      } finally {
-        setLoading(false);
-        processingRef.current = false;
-      }
-      return;
-    }
-
     if (!stripe || !elements) {
+      setError("Payment provider is not ready. Please refresh the page.");
       return;
     }
 
@@ -165,7 +120,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
           payment_method: {
             card: cardElement,
             billing_details: {
-              name: mockCardholderName || undefined,
+              name: cardholderName || undefined,
             },
           },
         }
@@ -216,12 +171,6 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
           )}
         </div>
 
-        {isMockMode && !paymentSuccess && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-[11px] font-semibold mb-4">
-            Running in local mock payment mode. Card Element simulated.
-          </div>
-        )}
-
         {paymentSuccess ? (
           <div className="rounded-xl border border-emerald-250 bg-emerald-50/50 p-6 text-center space-y-3 my-2">
             <div className="flex justify-center">
@@ -258,10 +207,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
 
               <div className="mt-6 relative z-10">
                 <div className="font-mono text-lg tracking-widest text-slate-100 drop-shadow-sm">
-                  {isMockMode 
-                    ? (mockCardNumber || "•••• •••• •••• ••••")
-                    : (cardBrand === "unknown" ? "•••• •••• •••• ••••" : `•••• •••• •••• ${cardBrand.toUpperCase()}`)
-                  }
+                  {cardBrand === "unknown" ? "•••• •••• •••• ••••" : `•••• •••• •••• ${cardBrand.toUpperCase()}`}
                 </div>
               </div>
 
@@ -269,13 +215,13 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
                 <div>
                   <span className="block text-[8px] uppercase tracking-wider text-slate-400">Cardholder Name</span>
                   <span className="block text-xs font-semibold tracking-wide text-slate-200 uppercase truncate max-w-[180px]">
-                    {mockCardholderName || "Valued Client"}
+                    {cardholderName || "Valued Client"}
                   </span>
                 </div>
                 <div className="text-right">
                   <span className="block text-[8px] uppercase tracking-wider text-slate-400">Expires</span>
                   <span className="block text-xs font-mono font-semibold tracking-wide text-slate-200">
-                    {isMockMode ? (mockExpiry || "MM/YY") : "MM/YY"}
+                    MM/YY
                   </span>
                 </div>
               </div>
@@ -290,8 +236,8 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
                   type="text"
                   required
                   placeholder="e.g. Sarah Jenkins"
-                  value={mockCardholderName}
-                  onChange={(e) => setMockCardholderName(e.target.value)}
+                  value={cardholderName}
+                  onChange={(e) => setCardholderName(e.target.value)}
                   className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors placeholder:text-slate-400"
                 />
               </div>
@@ -300,99 +246,33 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                   Card Details
                 </label>
-                
-                {isMockMode ? (
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        placeholder="Card number (e.g. 4242 4242 4242 4242)"
-                        value={mockCardNumber}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\s+/g, "");
-                          setMockCardNumber(raw.replace(/(\d{4})/g, "$1 ").trim());
-                          
-                          if (raw.startsWith("4")) {
-                            setCardBrand("visa");
-                          } else if (/^(5[1-5]|2[2-7])/.test(raw)) {
-                            setCardBrand("mastercard");
-                          } else if (/^(3[47])/.test(raw)) {
-                            setCardBrand("amex");
-                          } else if (raw === "") {
-                            setCardBrand("unknown");
-                          } else {
-                            setCardBrand("other");
-                          }
-                        }}
-                        maxLength={19}
-                        className="block w-full rounded-lg border border-slate-200 pl-3.5 pr-14 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                      />
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                        {getCardLogo(cardBrand)}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="text"
-                        required
-                        placeholder="MM / YY"
-                        value={mockExpiry}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\s+/g, "");
-                          if (val.length === 2 && !mockExpiry.includes("/")) {
-                            setMockExpiry(val + "/");
-                          } else {
-                            setMockExpiry(val);
-                          }
-                        }}
-                        maxLength={5}
-                        className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                      />
-                      <input
-                        type="password"
-                        required
-                        placeholder="CVC"
-                        value={mockCvc}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          setMockCvc(val);
-                        }}
-                        maxLength={4}
-                        className="block w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-3 px-3.5 bg-white flex items-center justify-between border border-slate-200 rounded-lg">
-                    <div className="flex-1">
-                      <CardElement
-                        onChange={(e) => {
-                          setCardBrand(e.brand || "unknown");
-                        }}
-                        options={{
-                          style: {
-                            base: {
-                              fontSize: "14px",
-                              color: "#0f172a",
-                              fontFamily: "Inter, sans-serif",
-                              "::placeholder": {
-                                color: "#94a3b8",
-                              },
-                            },
-                            invalid: {
-                              color: "#ef4444",
+                <div className="py-3 px-3.5 bg-white flex items-center justify-between border border-slate-200 rounded-lg">
+                  <div className="flex-1">
+                    <CardElement
+                      onChange={(e) => {
+                        setCardBrand(e.brand || "unknown");
+                      }}
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: "14px",
+                            color: "#0f172a",
+                            fontFamily: "Inter, sans-serif",
+                            "::placeholder": {
+                              color: "#94a3b8",
                             },
                           },
-                        }}
-                      />
-                    </div>
-                    <div className="ml-3 shrink-0">
-                      {getCardLogo(cardBrand)}
-                    </div>
+                          invalid: {
+                            color: "#ef4444",
+                          },
+                        },
+                      }}
+                    />
                   </div>
-                )}
+                  <div className="ml-3 shrink-0">
+                    {getCardLogo(cardBrand)}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -405,7 +285,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !stripe}
               className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-3 text-sm font-semibold text-white shadow-md hover:scale-[1.01] hover:shadow-lg active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-75 focus:outline-none cursor-pointer"
             >
               {loading ? (
@@ -422,7 +302,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
             </button>
 
             <span className="block text-center text-[10px] text-slate-400 font-mono">
-              Test Card Hint: 4242 4242 4242 4242 | Expiry: 12/28 | CVC: 123
+              Test Card: 4242 4242 4242 4242 | Exp: 12/28 | CVC: 123
             </span>
 
             <div className="flex items-center justify-center gap-1.5 pt-2 text-[10px] text-slate-400 font-semibold">
@@ -448,15 +328,10 @@ export const PayButton = ({ invoiceId, amount, onSuccess }: PayButtonProps) => {
   if (showForm) {
     if (!stripePromise) {
       return (
-        <InnerPayForm 
-          invoiceId={invoiceId} 
-          amount={amount} 
-          onSuccess={() => {
-            onSuccess();
-            setShowForm(false);
-          }} 
-          onClose={() => setShowForm(false)} 
-        />
+        <div className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs font-semibold px-4 py-2.5">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          Payment service is not configured.
+        </div>
       );
     }
 
