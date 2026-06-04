@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: false,
   isClient: false,
   isLoading: true,
-  logout: async () => {},
+  logout: async () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -38,13 +38,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoading = status === "loading";
 
   const logout = async () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("vp_logged_out", "true");
+    }
     await fetch("/api/auth/logout", { method: "POST" });
     try {
       await signOut({ redirect: false });
     } catch {
       // Ignored: Ensure redirect still runs if next-auth client fails
     }
-    window.location.replace("/login?logged_out=true");
+    window.location.replace("/login");
   };
 
   return (
