@@ -150,7 +150,7 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => fillCredentials("Vault@Vaultpay.com", "admin123")}
+              onClick={() => fillCredentials("Vault@Vaultpay.com", "VpAdmin@2026!")}
               className="flex flex-col items-center justify-center p-3 rounded-lg border border-purple-500/10 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/20 transition-all duration-300 text-left cursor-pointer"
             >
               <span className="text-xs font-bold text-purple-400">Admin Login</span>
@@ -158,7 +158,7 @@ export default function LoginPage() {
             </button>
 
             <button
-              onClick={() => fillCredentials("sarah@meridian.com", "client123")}
+              onClick={() => fillCredentials("sarah@meridian.com", "VpClient@2026!")}
               className="flex flex-col items-center justify-center p-3 rounded-lg border border-blue-500/10 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/20 transition-all duration-300 text-left cursor-pointer"
             >
               <span className="text-xs font-bold text-blue-400">Client Login</span>

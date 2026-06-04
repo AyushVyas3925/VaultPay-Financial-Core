@@ -1,3 +1,13 @@
+/**
+ * ⚠️  IN-MEMORY DATA STORE — KNOWN LIMITATION
+ *
+ * This store uses `globalThis` to persist data across hot-reloads in development,
+ * but ALL data resets to seed values on every server restart or redeployment.
+ * This means newly created invoices will be lost.
+ *
+ * For production use, this should be replaced with a persistent database
+ * (e.g. MongoDB Atlas, PostgreSQL via Supabase/Neon) and an ORM like Prisma.
+ */
 import { User } from '@/types/user';
 import { Invoice, ClientSummary } from '@/types/invoice';
 
@@ -12,7 +22,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     name: 'Vaultpay',
     email: 'Vault@Vaultpay.com',
     role: 'admin',
-    passwordHash: '$2b$10$mQymUFlBFrno1qWez9RdTuDTa5YeNWgi90PwYuHShMYuEhilzlWA2',
+    passwordHash: '$2b$10$0Bqbke86.XuyIK6YiGH2MedAEpd6LGPjZW3WFXkeIqv1uZEpy9/a.',
   },
   {
     id: 'user_sarah',
@@ -20,7 +30,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'sarah@meridian.com',
     role: 'client',
     clientId: 'client_meridian',
-    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
+    passwordHash: '$2b$10$0mCG8xEfR5yx8.D6ze63HefiKD9qXRGJzzbeUWD1Adv/382EVrsDq',
   },
   {
     id: 'user_james',
@@ -28,7 +38,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'james@apex.com',
     role: 'client',
     clientId: 'client_apex',
-    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
+    passwordHash: '$2b$10$0mCG8xEfR5yx8.D6ze63HefiKD9qXRGJzzbeUWD1Adv/382EVrsDq',
   },
   {
     id: 'user_elena',
@@ -36,7 +46,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'elena@vanguard.com',
     role: 'client',
     clientId: 'client_vanguard',
-    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
+    passwordHash: '$2b$10$0mCG8xEfR5yx8.D6ze63HefiKD9qXRGJzzbeUWD1Adv/382EVrsDq',
   },
   {
     id: 'user_marcus',
@@ -44,7 +54,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'marcus@horizon.com',
     role: 'client',
     clientId: 'client_horizon',
-    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
+    passwordHash: '$2b$10$0mCG8xEfR5yx8.D6ze63HefiKD9qXRGJzzbeUWD1Adv/382EVrsDq',
   },
 ];
 

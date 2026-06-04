@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import Stripe from "stripe";
 import { store } from "@/lib/store";
 import { requireClient } from "@/lib/auth";
+
+const checkoutSchema = z.object({
+  invoiceId: z.string().min(1, "invoiceId is required"),
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,10 +29,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { invoiceId } = await req.json();
-    if (!invoiceId) {
-      return NextResponse.json({ error: "Missing invoiceId" }, { status: 400 });
+    const body = await req.json();
+    const parsed = checkoutSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+
+    const { invoiceId } = parsed.data;
 
     const invoice = store.getInvoice(invoiceId, user.role, user.clientId);
     if (!invoice) {
