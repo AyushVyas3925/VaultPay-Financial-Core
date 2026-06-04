@@ -165,7 +165,7 @@ export default function CreateInvoicePage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Back navigation */}
+
       <div>
         <Link
           href="/admin/dashboard"
@@ -176,7 +176,7 @@ export default function CreateInvoicePage() {
         </Link>
       </div>
 
-      {/* Header */}
+
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           New Corporate Billing Invoice
@@ -192,10 +192,10 @@ export default function CreateInvoicePage() {
         </div>
       )}
 
-      {/* Invoice Creation Form Card */}
+
       <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8 shadow-sm space-y-8">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Client Selection */}
+
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
               Select Client Contract
@@ -216,7 +216,7 @@ export default function CreateInvoicePage() {
 
           </div>
 
-          {/* Due Date */}
+
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
               Payment Due Date
@@ -231,7 +231,7 @@ export default function CreateInvoicePage() {
           </div>
         </div>
 
-        {/* Dynamic Line Items Section */}
+
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
@@ -255,7 +255,7 @@ export default function CreateInvoicePage() {
                   key={index}
                   className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/50"
                 >
-                  {/* Description */}
+
                   <div className="flex-1">
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
                       Description
@@ -272,7 +272,7 @@ export default function CreateInvoicePage() {
                         }`}
                     />
 
-                    {/* Visual Policy Warning Alert */}
+
                     {isGeneric && (
                       <p className="mt-1.5 text-[10px] font-semibold text-amber-700 bg-amber-100/50 border border-amber-200/40 rounded-md px-2 py-1 animate-in fade-in duration-200">
                         ⚠️ Vaultpay standard policies require description to specify hours/deliverables.
@@ -280,7 +280,7 @@ export default function CreateInvoicePage() {
                     )}
                   </div>
 
-                  {/* Quantity */}
+
                   <div className="w-full sm:w-20">
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
                       Quantity
@@ -296,7 +296,7 @@ export default function CreateInvoicePage() {
                     />
                   </div>
 
-                  {/* Rate */}
+
                   <div className="w-full sm:w-32">
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 lg:hidden">
                       Rate ($)
@@ -314,13 +314,13 @@ export default function CreateInvoicePage() {
                     />
                   </div>
 
-                  {/* Calculated Total for Row */}
+
                   <div className="w-full sm:w-28 text-right font-semibold text-slate-900 text-sm py-2">
                     <span className="inline-block sm:hidden text-xs text-slate-400 font-normal mr-2">Row Total:</span>
                     {formatCurrency(item.quantity * item.rate)}
                   </div>
 
-                  {/* Delete Button */}
+
                   <button
                     type="button"
                     onClick={() => removeLineItem(index)}
@@ -335,7 +335,7 @@ export default function CreateInvoicePage() {
           </div>
         </div>
 
-        {/* Totals Breakdown */}
+
         <div className="flex flex-col items-end pt-6 border-t border-slate-100 space-y-3">
           <div className="flex w-64 justify-between text-sm text-slate-500">
             <span>Subtotal:</span>
@@ -346,7 +346,7 @@ export default function CreateInvoicePage() {
           </div>
         </div>
 
-        {/* Submit */}
+
         <div className="flex justify-end gap-3 pt-6">
           <Link
             href="/admin/dashboard"

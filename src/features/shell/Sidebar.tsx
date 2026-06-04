@@ -80,7 +80,7 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
             </button>
           )}
 
-          {/* Mobile Close Button */}
+
           <button
             onClick={() => setIsOpen(false)}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 lg:hidden"
@@ -89,7 +89,7 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
           </button>
         </div>
 
-        {/* User Quick Info */}
+
         <div className={`flex items-center gap-3 px-6 py-5 border-b border-slate-100 bg-slate-50/50 ${isCollapsed ? "justify-center" : "justify-start"
           }`}>
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 shrink-0">
@@ -105,7 +105,7 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
           )}
         </div>
 
-        {/* Main Navigation Links */}
+
         <nav className="relative flex-1 px-4 py-6 space-y-1">
           {/* Animated sliding active pill indicator */}
           {menuItems.findIndex((item) => pathname === item.href) !== -1 && (
@@ -144,7 +144,7 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
           })}
         </nav>
 
-        {/* Footer Brand Label */}
+
         <div className="p-4 border-t border-slate-100 text-center truncate">
           <span className="text-xs text-slate-400">
             {isCollapsed ? "VP" : "Vaultpay Corporate Services"}

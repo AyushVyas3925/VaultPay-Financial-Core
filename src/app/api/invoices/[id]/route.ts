@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { store } from "@/lib/store";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, handleApiError } from "@/lib/auth";
 
 const idParamSchema = z.string().min(1, "Invoice ID is required");
 
@@ -33,10 +33,6 @@ export async function GET(
 
     return NextResponse.json(invoice);
   } catch (error) {
-    const err = error instanceof Error ? error : new Error("Unknown error");
-    if (err.message === "Unauthenticated") {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }

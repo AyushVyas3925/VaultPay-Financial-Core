@@ -37,7 +37,7 @@ export default function ClientPaymentsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           Payment Transactions
@@ -47,7 +47,7 @@ export default function ClientPaymentsPage() {
         </p>
       </div>
 
-      {/* Invoice Table Grid */}
+
       {!isDataLoading && sortedPaidInvoices.length === 0 ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
           <ShieldCheck className="mx-auto h-12 w-12 text-slate-300" />

@@ -71,7 +71,7 @@ export default function ClientDashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           Billing Account Overview
@@ -81,7 +81,7 @@ export default function ClientDashboardPage() {
         </p>
       </div>
 
-      {/* Metrics Row */}
+
       <div className="grid gap-6 sm:grid-cols-3">
         <StatCard
           label="Outstanding Balance"
@@ -103,7 +103,7 @@ export default function ClientDashboardPage() {
         />
       </div>
 
-      {/* Unpaid Invoices Section */}
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-900">

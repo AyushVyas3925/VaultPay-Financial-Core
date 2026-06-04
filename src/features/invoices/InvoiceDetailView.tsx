@@ -36,7 +36,7 @@ export const InvoiceDetailView = ({
 
   return (
     <div className="space-y-6">
-      {/* Action Header bar */}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-extrabold text-slate-900">
@@ -46,10 +46,10 @@ export const InvoiceDetailView = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Download PDF button */}
+
           <DownloadPDFButton invoiceId={invoice.id} invoiceNumber={invoice.number} />
 
-          {/* Inline payment element trigger */}
+
           {showPaymentButton && (
             <PayButton
               invoiceId={invoice.id}
@@ -60,12 +60,12 @@ export const InvoiceDetailView = ({
         </div>
       </div>
 
-      {/* Invoice Document Layout */}
+
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-10 space-y-10">
 
-        {/* Vendor and Client Headers */}
+
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Vendor Details */}
+
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white font-bold text-sm">
@@ -87,7 +87,7 @@ export const InvoiceDetailView = ({
             </div>
           </div>
 
-          {/* Client Details */}
+
           <div className="space-y-3 md:text-right">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Billed To:
@@ -104,7 +104,7 @@ export const InvoiceDetailView = ({
           </div>
         </div>
 
-        {/* Invoice Dates Meta */}
+
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 p-4 rounded-xl border border-slate-100 bg-slate-50/50 text-sm">
           <div>
             <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
@@ -134,7 +134,7 @@ export const InvoiceDetailView = ({
           </div>
         </div>
 
-        {/* Line Items Table */}
+
         <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -166,7 +166,7 @@ export const InvoiceDetailView = ({
           </table>
         </div>
 
-        {/* Calculations Block */}
+
         <div className="flex flex-col items-end space-y-3 pt-6 border-t border-slate-100">
           <div className="flex w-64 justify-between text-sm text-slate-500">
             <span>Subtotal:</span>

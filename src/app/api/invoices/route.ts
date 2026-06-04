@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { store } from "@/lib/store";
-import { requireAuth, requireAdmin } from "@/lib/auth";
+import { requireAuth, requireAdmin, handleApiError } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -31,11 +31,7 @@ export async function GET() {
     const invoices = store.getInvoices(user.role, user.clientId);
     return NextResponse.json(invoices);
   } catch (error) {
-    const err = error instanceof Error ? error : new Error("Unknown error");
-    if (err.message === "Unauthenticated") {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }
 
@@ -65,13 +61,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (error) {
-    const err = error instanceof Error ? error : new Error("Unknown error");
-    if (err.message === "Unauthenticated") {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-    if (err.message === "Forbidden") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }

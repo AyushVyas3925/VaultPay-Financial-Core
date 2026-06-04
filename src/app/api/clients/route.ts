@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { store } from "@/lib/store";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, handleApiError } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -8,17 +8,9 @@ export const revalidate = 0;
 export async function GET() {
   try {
     await requireAdmin();
-    
     const summaries = store.getClientsSummaries();
     return NextResponse.json(summaries);
   } catch (error) {
-    const err = error instanceof Error ? error : new Error("Unknown error");
-    if (err.message === "Unauthenticated") {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-    if (err.message === "Forbidden") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }

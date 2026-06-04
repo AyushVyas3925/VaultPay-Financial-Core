@@ -23,7 +23,6 @@ export const StatCard = ({ label, value, icon: Icon, subtext, trend }: StatCardP
           {value}
         </h3>
         
-        {/* Trend Indicator / Subtext */}
         {trend && (
           <div className="flex items-center gap-1.5 mt-2">
             <span className={`text-xs font-bold ${

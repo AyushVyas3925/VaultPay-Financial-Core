@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import Stripe from "stripe";
 import { store } from "@/lib/store";
-import { requireClient } from "@/lib/auth";
+import { requireClient, handleApiError } from "@/lib/auth";
 
 const checkoutSchema = z.object({
   invoiceId: z.string().min(1, "invoiceId is required"),
@@ -77,12 +77,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const err = error instanceof Error ? error : new Error("Unknown error");
     console.error("Stripe Checkout Error:", err);
-    if (err.message === "Unauthenticated") {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-    if (err.message === "Forbidden") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }

@@ -99,7 +99,7 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
         onKeyDown={handleKeyDown}
         className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
       >
-        {/* Input Bar */}
+
         <div className="relative border-b border-slate-800/80 flex items-center">
           <Search className="h-5 w-5 text-slate-500 absolute left-4" />
           <input
@@ -120,7 +120,7 @@ export const SearchModal = ({ isOpen, onClose, viewerRole }: SearchModalProps) =
           </div>
         </div>
 
-        {/* Content Panel */}
+
         <div className="flex-1 overflow-y-auto max-h-[350px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-2">

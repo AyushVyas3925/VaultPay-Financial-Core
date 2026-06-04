@@ -41,7 +41,7 @@ export default function AdminClientsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           Client Contracts
@@ -51,7 +51,7 @@ export default function AdminClientsPage() {
         </p>
       </div>
 
-      {/* Clients Table */}
+
       {!clients || clients.length === 0 ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
           <Users className="mx-auto h-12 w-12 text-slate-300" />
