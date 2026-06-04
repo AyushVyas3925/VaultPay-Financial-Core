@@ -8,9 +8,9 @@ export interface MemoryStore {
 
 const seedUsers: (User & { passwordHash: string })[] = [
   {
-    id: 'user_evelyn',
-    name: 'Evelyn Croft',
-    email: 'evelyn@nexus.com',
+    id: 'user_Vault',
+    name: 'Vaultpay',
+    email: 'Vault@Vaultpay.com',
     role: 'admin',
     passwordHash: '$2b$10$mQymUFlBFrno1qWez9RdTuDTa5YeNWgi90PwYuHShMYuEhilzlWA2',
   },

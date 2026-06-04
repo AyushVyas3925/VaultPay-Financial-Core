@@ -39,11 +39,11 @@ export async function GET(
     doc.setFontSize(22);
     doc.setTextColor(primaryColor);
 
-    doc.text("NEXUS CORPORATE SERVICES", 20, 25);
+    doc.text("Vaultpay CORPORATE SERVICES", 20, 25);
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(secondaryColor);
-    doc.text("100 Broadway, 24th Floor, New York, NY 10005 | billing@nexus.com", 20, 31);
+    doc.text("100 Broadway, 24th Floor, New York, NY 10005 | billing@Vaultpay.com", 20, 31);
 
     doc.setDrawColor(gridBorder);
     doc.setLineWidth(0.5);
@@ -86,14 +86,14 @@ export async function GET(
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(secondaryColor);
-    
+
     invoice.lineItems.forEach((item) => {
       currentY += 10;
       doc.text(item.description, 23, currentY + 5);
       doc.text(String(item.quantity), 121, currentY + 5);
       doc.text(`$${item.rate.toFixed(2)}`, 141, currentY + 5);
       doc.text(`$${(item.quantity * item.rate).toFixed(2)}`, 166, currentY + 5);
-      
+
       doc.line(20, currentY + 8, 190, currentY + 8);
     });
 
@@ -114,8 +114,8 @@ export async function GET(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(secondaryColor);
-    doc.text("Thank you for choosing Nexus Corporate Services.", 20, currentY);
-    doc.text("For questions regarding billing or compliance, contact support@nexus.com.", 20, currentY + 4);
+    doc.text("Thank you for choosing Vaultpay Corporate Services.", 20, currentY);
+    doc.text("For questions regarding billing or compliance, contact support@Vaultpay.com.", 20, currentY + 4);
 
     const pdfOutput = doc.output("arraybuffer");
 

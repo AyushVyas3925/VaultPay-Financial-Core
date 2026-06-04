@@ -6,11 +6,11 @@ import useSWR from "swr";
 import { Invoice } from "@/types/invoice";
 import { StatCard } from "@/features/invoices/StatCard";
 import { InvoiceTable } from "@/features/invoices/InvoiceTable";
-import { 
-  DollarSign, 
-  Clock, 
-  CheckCircle2, 
-  Users, 
+import {
+  DollarSign,
+  Clock,
+  CheckCircle2,
+  Users,
   Plus
 } from "lucide-react";
 
@@ -59,10 +59,10 @@ export default function AdminDashboardPage() {
     };
   };
 
-  const { 
-    totalRevenue, 
-    outstanding, 
-    paidCount, 
+  const {
+    totalRevenue,
+    outstanding,
+    paidCount,
     activeClients
   } = calculateMetrics();
 
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
   const sortedInvoices = invoices ? [...invoices].sort(
     (a, b) => new Date(b.issuedDate).getTime() - new Date(a.issuedDate).getTime()
   ) : [];
-  
+
   const recentInvoices = sortedInvoices.slice(0, 5);
 
   return (
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
             Financial Dashboard
           </h1>
           <p className="text-sm text-slate-500">
-            Nexus Corporate Services Billing Overview
+            Vaultpay Corporate Services Billing Overview
           </p>
         </div>
 
@@ -143,17 +143,17 @@ export default function AdminDashboardPage() {
           <h3 className="text-lg font-bold text-slate-900">
             Recent Invoices
           </h3>
-          <Link 
-            href="/admin/invoices" 
+          <Link
+            href="/admin/invoices"
             className="text-xs font-bold text-blue-600 hover:underline hover:text-blue-700 transition-colors"
           >
             View All Invoices
           </Link>
         </div>
 
-        <InvoiceTable 
-          invoices={recentInvoices} 
-          viewPathPrefix="/admin/invoices" 
+        <InvoiceTable
+          invoices={recentInvoices}
+          viewPathPrefix="/admin/invoices"
           isLoading={isDataLoading}
         />
       </div>

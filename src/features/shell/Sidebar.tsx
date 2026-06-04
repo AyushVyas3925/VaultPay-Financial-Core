@@ -4,13 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/AuthContext";
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  CreditCard, 
-  X, 
-  ShieldCheck, 
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  CreditCard,
+  X,
+  ShieldCheck,
   UserCheck,
   ChevronLeft,
   ChevronRight
@@ -48,16 +48,15 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
   return (
     <>
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-all duration-300 lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
+          } ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-slate-100">
           <Link href="/" className="flex items-center gap-2" onClick={handleLinkClick}>
@@ -91,9 +90,8 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
         </div>
 
         {/* User Quick Info */}
-        <div className={`flex items-center gap-3 px-6 py-5 border-b border-slate-100 bg-slate-50/50 ${
-          isCollapsed ? "justify-center" : "justify-start"
-        }`}>
+        <div className={`flex items-center gap-3 px-6 py-5 border-b border-slate-100 bg-slate-50/50 ${isCollapsed ? "justify-center" : "justify-start"
+          }`}>
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 shrink-0">
             {role === "admin" ? <ShieldCheck className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
           </div>
@@ -131,18 +129,15 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
                 key={item.href}
                 href={item.href}
                 onClick={handleLinkClick}
-                className={`group relative flex h-11 items-center gap-3 px-3 rounded-lg text-sm transition-all duration-200 ${
-                  isCollapsed ? "justify-center" : "justify-start"
-                } ${
-                  isActive
+                className={`group relative flex h-11 items-center gap-3 px-3 rounded-lg text-sm transition-all duration-200 ${isCollapsed ? "justify-center" : "justify-start"
+                  } ${isActive
                     ? "text-blue-700 font-bold"
                     : "text-slate-500 hover:bg-slate-50/50 hover:text-slate-900"
-                }`}
+                  }`}
                 title={isCollapsed ? item.label : undefined}
               >
-                <Icon className={`h-5 w-5 shrink-0 transition-colors ${
-                  isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
-                }`} />
+                <Icon className={`h-5 w-5 shrink-0 transition-colors ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"
+                  }`} />
                 {!isCollapsed && <span>{item.label}</span>}
               </Link>
             );
@@ -152,7 +147,7 @@ export const Sidebar = ({ isOpen, setIsOpen, isCollapsed = false, onToggleCollap
         {/* Footer Brand Label */}
         <div className="p-4 border-t border-slate-100 text-center truncate">
           <span className="text-xs text-slate-400">
-            {isCollapsed ? "VP" : "Nexus Corporate Services"}
+            {isCollapsed ? "VP" : "Vaultpay Corporate Services"}
           </span>
         </div>
       </aside>

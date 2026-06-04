@@ -9,8 +9,12 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && role !== "admin") {
-      router.replace("/403");
+    if (!isLoading) {
+      if (!role) {
+        router.replace("/login");
+      } else if (role !== "admin") {
+        router.replace("/403");
+      }
     }
   }, [role, isLoading, router]);
 
@@ -30,8 +34,12 @@ export const ClientGuard = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && role !== "client") {
-      router.replace("/403");
+    if (!isLoading) {
+      if (!role) {
+        router.replace("/login");
+      } else if (role !== "client") {
+        router.replace("/403");
+      }
     }
   }, [role, isLoading, router]);
 

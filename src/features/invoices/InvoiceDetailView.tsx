@@ -11,10 +11,10 @@ interface InvoiceDetailViewProps {
   onPaymentSuccess: () => void;
 }
 
-export const InvoiceDetailView = ({ 
-  invoice, 
-  viewerRole, 
-  onPaymentSuccess 
+export const InvoiceDetailView = ({
+  invoice,
+  viewerRole,
+  onPaymentSuccess
 }: InvoiceDetailViewProps) => {
 
   const formatCurrency = (amount: number) => {
@@ -51,10 +51,10 @@ export const InvoiceDetailView = ({
 
           {/* Inline payment element trigger */}
           {showPaymentButton && (
-            <PayButton 
-              invoiceId={invoice.id} 
-              amount={invoice.total} 
-              onSuccess={onPaymentSuccess} 
+            <PayButton
+              invoiceId={invoice.id}
+              amount={invoice.total}
+              onSuccess={onPaymentSuccess}
             />
           )}
         </div>
@@ -62,7 +62,7 @@ export const InvoiceDetailView = ({
 
       {/* Invoice Document Layout */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 lg:p-10 space-y-10">
-        
+
         {/* Vendor and Client Headers */}
         <div className="grid gap-8 md:grid-cols-2">
           {/* Vendor Details */}
@@ -72,7 +72,7 @@ export const InvoiceDetailView = ({
                 N
               </div>
               <span className="font-extrabold text-slate-900 tracking-tight">
-                Nexus Corporate Services
+                Vaultpay Corporate Services
               </span>
             </div>
             <div className="text-sm text-slate-500 space-y-1">
@@ -82,7 +82,7 @@ export const InvoiceDetailView = ({
               </p>
               <p className="flex items-center gap-1.5">
                 <Mail className="h-4 w-4 text-slate-400 shrink-0" />
-                billing@nexus.com
+                billing@Vaultpay.com
               </p>
             </div>
           </div>

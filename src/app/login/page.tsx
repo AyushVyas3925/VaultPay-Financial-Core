@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function LoginPage() {
   const router = useRouter();
   const { user, role, isLoading: authLoading } = useAuth();
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -62,12 +62,12 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
-      
+
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-12 -left-12 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-blue-600/20 blur-[80px] sm:blur-[110px] animate-blob-float-1 animate-blob-spin" />
-        
+
         <div className="absolute -bottom-20 -right-20 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-indigo-500/15 blur-[100px] sm:blur-[130px] animate-blob-float-2 animate-blob-spin" style={{ animationDirection: "reverse" }} />
-        
+
         <div className="absolute top-1/3 right-1/4 w-[300px] sm:w-[450px] h-[300px] sm:h-[450px] rounded-full bg-slate-400/10 blur-[70px] sm:blur-[100px] animate-blob-float-1" />
       </div>
 
@@ -80,7 +80,7 @@ export default function LoginPage() {
             Sign In to VaultPay
           </h2>
           <p className="text-xs text-slate-400 font-medium">
-            Nexus Corporate Services Billing Portal
+            Vaultpay Corporate Services Billing Portal
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="evelyn@nexus.com"
+                placeholder="Vault@Vaultpay.com"
                 className="block w-full rounded-lg border border-white/10 pl-10.5 pr-4 py-2.5 text-sm bg-white/5 text-white placeholder-slate-500 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:outline-none transition-colors"
               />
             </div>
@@ -150,11 +150,11 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => fillCredentials("evelyn@nexus.com", "admin123")}
+              onClick={() => fillCredentials("Vault@Vaultpay.com", "admin123")}
               className="flex flex-col items-center justify-center p-3 rounded-lg border border-purple-500/10 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/20 transition-all duration-300 text-left cursor-pointer"
             >
               <span className="text-xs font-bold text-purple-400">Admin Login</span>
-              <span className="text-[10px] text-slate-400 mt-1 font-mono">evelyn@nexus.com</span>
+              <span className="text-[10px] text-slate-400 mt-1 font-mono">Vault@Vaultpay.com</span>
             </button>
 
             <button

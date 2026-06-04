@@ -2,11 +2,11 @@
 
 import React, { useState, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { 
-  Elements, 
-  CardElement, 
-  useStripe, 
-  useElements 
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements
 } from "@stripe/react-stripe-js";
 import { CreditCard, Loader2, AlertCircle, Lock, X } from "lucide-react";
 
@@ -68,7 +68,7 @@ const getCardLogoLarge = (brand: string) => {
 const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -146,7 +146,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget && !loading && !paymentSuccess) {
@@ -158,7 +158,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
         <div className="flex justify-between items-center mb-5 border-b border-slate-200/80 pb-3">
           <div>
             <h3 className="text-base font-extrabold text-slate-900 tracking-tight">Secure Checkout</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nexus Billing Gateway</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vaultpay Billing Gateway</p>
           </div>
           {!loading && !paymentSuccess && (
             <button
@@ -187,7 +187,7 @@ const InnerPayForm = ({ invoiceId, amount, onSuccess, onClose }: InnerPayFormPro
             <div className="relative h-44 w-full rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 shadow-xl text-white overflow-hidden select-none">
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl" />
               <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-              
+
               <div className="flex justify-between items-start relative z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-7 rounded bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 border border-amber-200/50 shadow-sm relative overflow-hidden">
@@ -337,14 +337,14 @@ export const PayButton = ({ invoiceId, amount, onSuccess }: PayButtonProps) => {
 
     return (
       <Elements stripe={stripePromise}>
-        <InnerPayForm 
-          invoiceId={invoiceId} 
-          amount={amount} 
+        <InnerPayForm
+          invoiceId={invoiceId}
+          amount={amount}
           onSuccess={() => {
             onSuccess();
             setShowForm(false);
-          }} 
-          onClose={() => setShowForm(false)} 
+          }}
+          onClose={() => setShowForm(false)}
         />
       </Elements>
     );

@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VaultPay — Nexus Financial Core",
+  title: "VaultPay — Vaultpay Financial Core",
   description: "Secure role-based corporate invoicing, billing history audits, and Stripe payments vault.",
 };
 

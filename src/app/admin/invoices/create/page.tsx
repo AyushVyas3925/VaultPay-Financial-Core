@@ -251,8 +251,8 @@ export default function CreateInvoicePage() {
             {lineItems.map((item, index) => {
               const isGeneric = item.description.trim().toLowerCase() === "consulting";
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/50"
                 >
                   {/* Description */}
@@ -266,17 +266,16 @@ export default function CreateInvoicePage() {
                       placeholder="Consulting Services Description..."
                       value={item.description}
                       onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                      className={`block w-full rounded-lg border px-3 py-2 text-sm bg-white focus:outline-none transition-all duration-200 ${
-                        isGeneric 
-                          ? "border-amber-300 bg-amber-50 text-amber-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500" 
-                          : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      }`}
+                      className={`block w-full rounded-lg border px-3 py-2 text-sm bg-white focus:outline-none transition-all duration-200 ${isGeneric
+                        ? "border-amber-300 bg-amber-50 text-amber-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                        : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        }`}
                     />
-                    
+
                     {/* Visual Policy Warning Alert */}
                     {isGeneric && (
                       <p className="mt-1.5 text-[10px] font-semibold text-amber-700 bg-amber-100/50 border border-amber-200/40 rounded-md px-2 py-1 animate-in fade-in duration-200">
-                        ⚠️ Nexus standard policies require description to specify hours/deliverables.
+                        ⚠️ Vaultpay standard policies require description to specify hours/deliverables.
                       </p>
                     )}
                   </div>
