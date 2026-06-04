@@ -1,26 +1,59 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-950">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, role, isLoading: authLoading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Prevent immediate client-side redirection back to the dashboard
+  // when navigating to /login after a logout action, since next-auth's
+  // active session state may briefly persist on the client.
+  const [loggedOutParam, setLoggedOutParam] = useState(() => {
+    return searchParams?.get("logged_out") === "true";
+  });
+
   useEffect(() => {
-    if (user && role) {
+    if (user && role && !loggedOutParam) {
       const target = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
       router.replace(target);
     }
-  }, [user, role, router]);
+  }, [user, role, router, loggedOutParam]);
+
+  useEffect(() => {
+    if (user === null && loggedOutParam) {
+      setLoggedOutParam(false);
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("logged_out")) {
+        url.searchParams.delete("logged_out");
+        window.history.replaceState({}, "", url.pathname + url.search);
+      }
+    }
+  }, [user, loggedOutParam]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +85,7 @@ export default function LoginPage() {
     setError(null);
   };
 
-  if (authLoading || (user && role)) {
+  if (authLoading || (user && role && !loggedOutParam)) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-950">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />

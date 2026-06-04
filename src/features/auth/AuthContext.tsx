@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { UserRole } from "@/types/user";
 
 interface AuthContextType {
@@ -38,10 +38,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoading = status === "loading";
 
   const logout = async () => {
-    // callbackUrl tells next-auth's server-side handler to redirect to /login
-    // AFTER the session cookie is deleted — avoiding the proxy race condition
-    // where window.location fires before the cookie is cleared.
-    await nextAuthSignOut({ callbackUrl: "/login" });
+    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await signOut({ redirect: false });
+    } catch {
+      // Ignored: Ensure redirect still runs if next-auth client fails
+    }
+    window.location.replace("/login?logged_out=true");
   };
 
   return (
