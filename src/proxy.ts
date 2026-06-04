@@ -28,11 +28,6 @@ export default auth((req) => {
   }
 
   if (isLoggedIn) {
-    if (isLoginPath) {
-      const target = role === "admin" ? "/admin/dashboard" : "/client/dashboard";
-      return Response.redirect(new URL(target, nextUrl));
-    }
-
     if (isAdminRoute && role !== "admin") {
       return Response.redirect(new URL("/403", nextUrl));
     }
