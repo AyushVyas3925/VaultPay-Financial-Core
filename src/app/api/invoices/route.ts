@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { store } from "@/lib/store";
 import { requireAuth, requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const lineItemSchema = z.object({
+  description: z.string().min(1),
+  quantity: z.number().int().positive(),
+  rate: z.number().positive(),
+});
+
+const createInvoiceSchema = z.object({
+  clientId: z.string().min(1),
+  clientName: z.string().min(1),
+  clientEmail: z.string().email(),
+  dueDate: z.string().min(1),
+  lineItems: z.array(lineItemSchema).min(1),
+});
 
 export async function GET() {
   try {
@@ -29,11 +44,16 @@ export async function POST(req: NextRequest) {
     await requireAdmin();
     
     const body = await req.json();
-    const { clientId, clientName, clientEmail, dueDate, lineItems } = body;
+    const parsed = createInvoiceSchema.safeParse(body);
 
-    if (!clientId || !clientName || !clientEmail || !dueDate || !lineItems || !Array.isArray(lineItems) || lineItems.length === 0) {
-      return NextResponse.json({ error: "Missing required fields or invalid line items" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+
+    const { clientId, clientName, clientEmail, dueDate, lineItems } = parsed.data;
 
     const newInvoice = store.createInvoice({
       clientId,

@@ -12,7 +12,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     name: 'Evelyn Croft',
     email: 'evelyn@nexus.com',
     role: 'admin',
-    passwordHash: 'admin123',
+    passwordHash: '$2b$10$mQymUFlBFrno1qWez9RdTuDTa5YeNWgi90PwYuHShMYuEhilzlWA2',
   },
   {
     id: 'user_sarah',
@@ -20,7 +20,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'sarah@meridian.com',
     role: 'client',
     clientId: 'client_meridian',
-    passwordHash: 'client123',
+    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
   },
   {
     id: 'user_james',
@@ -28,7 +28,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'james@apex.com',
     role: 'client',
     clientId: 'client_apex',
-    passwordHash: 'client123',
+    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
   },
   {
     id: 'user_elena',
@@ -36,7 +36,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'elena@vanguard.com',
     role: 'client',
     clientId: 'client_vanguard',
-    passwordHash: 'client123',
+    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
   },
   {
     id: 'user_marcus',
@@ -44,7 +44,7 @@ const seedUsers: (User & { passwordHash: string })[] = [
     email: 'marcus@horizon.com',
     role: 'client',
     clientId: 'client_horizon',
-    passwordHash: 'client123',
+    passwordHash: '$2b$10$Th8B8YjIogxGqFXZoisds.EJ/49Eo81PD8vBhlz5qRxQW78ETXlzK',
   },
 ];
 

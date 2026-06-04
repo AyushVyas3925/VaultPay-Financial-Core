@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { store } from "@/lib/store";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -15,7 +16,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
         
         const user = store.getUserByEmail(credentials.email as string);
-        if (user && user.passwordHash === credentials.password) {
+        if (user && bcrypt.compareSync(credentials.password as string, user.passwordHash)) {
           return {
             id: user.id,
             name: user.name,
