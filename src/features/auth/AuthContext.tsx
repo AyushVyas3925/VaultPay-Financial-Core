@@ -38,7 +38,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoading = status === "loading";
 
   const logout = async () => {
-    await nextAuthSignOut({ callbackUrl: "/login" });
+    await nextAuthSignOut({ redirect: false });
+    window.location.href = "/login";
   };
 
   return (
