@@ -38,8 +38,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoading = status === "loading";
 
   const logout = async () => {
-    await nextAuthSignOut({ redirect: false });
-    window.location.href = "/login";
+    // callbackUrl tells next-auth's server-side handler to redirect to /login
+    // AFTER the session cookie is deleted — avoiding the proxy race condition
+    // where window.location fires before the cookie is cleared.
+    await nextAuthSignOut({ callbackUrl: "/login" });
   };
 
   return (
