@@ -30,52 +30,17 @@ export default function CreateInvoicePage() {
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  
-  const [suggestion, setSuggestion] = useState<{ avgRate: number; avgDays: number } | null>(null);
 
   useEffect(() => {
-    if (!selectedClientId || !invoices || invoices.length === 0) {
-      setTimeout(() => setSuggestion(null), 0);
-      return;
-    }
-
-    const clientInvoices = invoices.filter(inv => inv.clientId === selectedClientId);
-    if (clientInvoices.length === 0) {
-      setTimeout(() => setSuggestion(null), 0);
-      return;
-    }
-
-    const totalBilled = clientInvoices.reduce((sum, inv) => sum + inv.subtotal, 0);
-    const avgRate = Math.round(totalBilled / clientInvoices.length);
-
-    const totalDays = clientInvoices.reduce((sum, inv) => {
-      const issued = new Date(inv.issuedDate);
-      const due = new Date(inv.dueDate);
-      const diff = Math.ceil((due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24));
-      return sum + diff;
-    }, 0);
-    const avgDays = Math.round(totalDays / clientInvoices.length) || 30;
-
     const today = new Date();
-    today.setDate(today.getDate() + avgDays);
-    const dateStr = today.toISOString().split("T")[0];
-
-    setTimeout(() => {
-      setSuggestion({ avgRate, avgDays });
-      setDueDate(dateStr);
-      setLineItems((prev) => {
-        if (prev.length === 1 && prev[0].description === "" && prev[0].rate === 0) {
-          return [{ description: "Strategic consulting services", quantity: 1, rate: avgRate }];
-        }
-        return prev;
-      });
-    }, 0);
-  }, [selectedClientId, invoices]);
+    today.setDate(today.getDate() + 30);
+    setDueDate(today.toISOString().split("T")[0]);
+  }, []);
 
   const calculateTotals = () => {
     const subtotal = lineItems.reduce((acc, current) => acc + (current.quantity * current.rate), 0);
-    const tax = Math.round(subtotal * 0.08875 * 100) / 100;
-    const total = Math.round((subtotal + tax) * 100) / 100;
+    const tax = 0;
+    const total = subtotal;
     return { subtotal, tax, total };
   };
 
@@ -249,12 +214,6 @@ export default function CreateInvoicePage() {
               ))}
             </select>
 
-            {/* Smart Auto-fill Suggestions Indicator */}
-            {suggestion && (
-              <div className="mt-2 text-[10px] font-semibold text-blue-600 bg-blue-50/50 border border-blue-100/60 rounded-lg px-2.5 py-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                ✨ Suggested billing defaults loaded: Avg Subtotal <strong>{formatCurrency(suggestion.avgRate)}</strong>, Payment offset <strong>{suggestion.avgDays} Days</strong>.
-              </div>
-            )}
           </div>
 
           {/* Due Date */}
@@ -381,17 +340,6 @@ export default function CreateInvoicePage() {
         <div className="flex flex-col items-end pt-6 border-t border-slate-100 space-y-3">
           <div className="flex w-64 justify-between text-sm text-slate-500">
             <span>Subtotal:</span>
-            <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
-          </div>
-          <div className="flex w-64 justify-between text-sm text-slate-500">
-            <span className="flex items-center gap-1.5 group/tooltip relative cursor-help">
-              <span>Tax (8.875% NY):</span>
-              <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-100 text-[10px] text-slate-400 font-bold border border-slate-200">?</span>
-              <span className="pointer-events-none absolute bottom-full mb-2 right-0 w-52 rounded-lg bg-slate-900 p-2.5 text-[10px] leading-normal text-white opacity-0 transition-opacity duration-200 group-hover/tooltip:opacity-100 shadow-xl font-normal z-10">
-                New York State corporate tax rate of 8.875% applies to Nexus consulting service contracts.
-              </span>
-            </span>
-            <span className="font-semibold text-slate-900">{formatCurrency(tax)}</span>
           </div>
           <div className="flex w-64 justify-between border-t border-slate-100 pt-3 text-base font-bold text-slate-900">
             <span>Invoice Total:</span>

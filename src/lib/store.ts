@@ -320,9 +320,14 @@ declare global {
 }
 
 if (!globalThis.globalInvoiceStore) {
+  const sanitizedSeedInvoices = seedInvoices.map((inv) => ({
+    ...inv,
+    tax: 0,
+    total: inv.subtotal,
+  }));
   globalThis.globalInvoiceStore = {
     users: seedUsers,
-    invoices: seedInvoices,
+    invoices: sanitizedSeedInvoices,
   };
 }
 
@@ -378,8 +383,8 @@ export const store = {
     }));
 
     const subtotal = items.reduce((acc, current) => acc + current.quantity * current.rate, 0);
-    const tax = Math.round(subtotal * 0.08875 * 100) / 100;
-    const total = Math.round((subtotal + tax) * 100) / 100;
+    const tax = 0;
+    const total = subtotal;
 
     const newInvoice: Invoice = {
       id,

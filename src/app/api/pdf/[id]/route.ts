@@ -103,10 +103,6 @@ export async function GET(
     doc.text("Subtotal:", 130, currentY);
     doc.text(`$${invoice.subtotal.toFixed(2)}`, 165, currentY);
 
-    currentY += 6;
-    doc.text("Tax (8.875% NY):", 130, currentY);
-    doc.text(`$${invoice.tax.toFixed(2)}`, 165, currentY);
-
     currentY += 8;
     doc.setFont("helvetica", "bold");
     doc.setTextColor(primaryColor);
