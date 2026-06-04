@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { UserRole } from "@/types/user";
 
 interface AuthContextType {
@@ -38,10 +38,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoading = status === "loading";
 
   const logout = async () => {
-    // callbackUrl tells next-auth's server-side handler to redirect to /login
-    // AFTER the session cookie is deleted — avoiding the proxy race condition
-    // where window.location fires before the cookie is cleared.
-    await nextAuthSignOut({ callbackUrl: "/login" });
+    // Bypass next-auth's unreliable client-side signOut().
+    // Directly hit our custom endpoint that force-deletes all
+    // HttpOnly session cookies on the server in one round-trip.
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.replace("/login");
   };
 
   return (
